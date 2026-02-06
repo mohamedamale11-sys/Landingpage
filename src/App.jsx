@@ -1,5 +1,9 @@
 import React from 'react';
 
+const APK_URL = '/app-release.apk';
+const APK_VERSION = '1.0.2 (17)';
+const APK_SHA256 = 'd999209d2756494fe87e9b5357a55617077d6e73ae22209e9b2c0c83e4b775b6';
+
 function App() {
   return (
     <div style={{
@@ -80,7 +84,7 @@ function App() {
         </p>
 
         <a
-          href="/app-release.apk"
+          href={APK_URL}
           download
           style={{
             display: 'inline-flex',
@@ -125,8 +129,25 @@ function App() {
               fontWeight: '600',
               letterSpacing: '-0.01em'
             }}>Android APK</div>
+            <div style={{
+              marginTop: '6px',
+              fontSize: '12px',
+              opacity: 0.8
+            }}>
+              Version: {APK_VERSION}
+            </div>
           </div>
         </a>
+
+        <div style={{
+          marginTop: '14px',
+          fontSize: '12px',
+          color: '#94a3b8',
+          wordBreak: 'break-all',
+          lineHeight: 1.5
+        }}>
+          SHA-256: <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace' }}>{APK_SHA256}</span>
+        </div>
 
       </div>
 
