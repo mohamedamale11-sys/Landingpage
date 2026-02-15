@@ -27,6 +27,60 @@ type LatestResponse = {
   error?: string;
 };
 
+export function cleanWireItems(items: WireItem[]) {
+  // MVP guard:
+  // - remove obvious non-target translations (Korean/Filipino)
+  // - remove non-Latin scripts that make the feed look broken (CJK/Hangul/Cyrillic)
+  // - de-dupe CoinDesk translation variants by preferring the non-prefixed URL
+  const badScript = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff]/;
+
+  function urlInfo(raw: string) {
+    try {
+      const u = new URL(raw);
+      const parts = u.pathname.split("/").filter(Boolean);
+      const maybeLang = parts[0] || "";
+      const hasLang = /^[a-z]{2,3}$/.test(maybeLang);
+      const canonical = hasLang
+        ? `${u.origin}/${parts.slice(1).join("/")}`
+        : `${u.origin}${u.pathname}`;
+      return {
+        ok: true as const,
+        hasLang,
+        lang: hasLang ? maybeLang : null,
+        canonical,
+      };
+    } catch {
+      return { ok: false as const, hasLang: false, lang: null, canonical: raw };
+    }
+  }
+
+  const pruned = items.filter((x) => {
+    const title = x.title || "";
+    if (!x.url || !title) return false;
+    if (badScript.test(title)) return false;
+    const ui = urlInfo(x.url);
+    if (ui.ok && (ui.lang === "ko" || ui.lang === "fil")) return false;
+    return true;
+  });
+
+  const bestByCanonical = new Map<string, WireItem>();
+  for (const it of pruned) {
+    const ui = urlInfo(it.url);
+    const key = ui.canonical;
+    const existing = bestByCanonical.get(key);
+    if (!existing) {
+      bestByCanonical.set(key, it);
+      continue;
+    }
+    const a = urlInfo(existing.url);
+    const b = ui;
+    const score = (i: ReturnType<typeof urlInfo>) => (i.ok && !i.hasLang ? 10 : 0);
+    if (score(b) > score(a)) bestByCanonical.set(key, it);
+  }
+
+  return [...bestByCanonical.values()];
+}
+
 export function encodeStoryID(url: string) {
   return Buffer.from(url, "utf8").toString("base64url");
 }

@@ -1,4 +1,4 @@
-import { fetchLatest, encodeStoryID } from "@/lib/news";
+import { cleanWireItems, fetchLatest, encodeStoryID } from "@/lib/news";
 
 function escapeXML(s: string) {
   return s
@@ -10,7 +10,7 @@ function escapeXML(s: string) {
 }
 
 export async function GET() {
-  const items = await fetchLatest(60, "so");
+  const items = cleanWireItems(await fetchLatest(60, "so"));
   const base =
     process.env.SITE_URL && process.env.SITE_URL.trim() !== ""
       ? process.env.SITE_URL.replace(/\/+$/, "")
@@ -57,4 +57,3 @@ export async function GET() {
     },
   });
 }
-
