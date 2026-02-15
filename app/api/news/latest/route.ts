@@ -11,11 +11,16 @@ export async function GET(req: Request) {
   }
 
   try {
+    const controller = new AbortController();
+    const timeoutMs = 6500;
+    const t = setTimeout(() => controller.abort(), timeoutMs);
     const res = await fetch(u.toString(), {
       headers: { accept: "application/json" },
       // Keep it fast; the page fetch uses revalidate anyway.
       cache: "no-store",
+      signal: controller.signal,
     });
+    clearTimeout(t);
     const body = await res.text();
     return new Response(body, {
       status: res.status,

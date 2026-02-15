@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { cleanWireItems, decodeStoryID, fetchLatest, fetchNewsItemByURL, isSomaliWireItem } from "@/lib/news";
+import { cleanWireItems, decodeStoryID, fetchLatest, fetchNewsItemByURL } from "@/lib/news";
 import { formatDateUTC, timeAgo } from "@/lib/time";
 import { StoryLink } from "@/components/StoryLink";
 
@@ -208,10 +208,8 @@ export default async function NewsDetailPage(props: PageProps) {
 async function MoreNews(props: { currentUrl: string }) {
   const raw = await fetchLatest(36, "so");
   const cleaned = cleanWireItems(raw);
-  // Enforce Somali-only output on the website.
-  const items = cleaned
-    .filter(isSomaliWireItem)
-    .filter((x) => x.url !== props.currentUrl);
+  // Backend enforces Somali; frontend keeps only lightweight “broken script” guard via cleanWireItems.
+  const items = cleaned.filter((x) => x.url !== props.currentUrl);
 
   const list = items.slice(0, 6);
 

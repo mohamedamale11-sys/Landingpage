@@ -4,7 +4,7 @@ import { cleanWireItems, fetchLatest, encodeStoryID } from "@/lib/news";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let items: Awaited<ReturnType<typeof fetchLatest>> = [];
   try {
-    items = cleanWireItems(await fetchLatest(120, "so"), { onlySomali: true });
+    items = cleanWireItems(await fetchLatest(120, "so"));
   } catch {
     // During `next build`, the backend might not be running.
     // Return a minimal sitemap so the build never fails.

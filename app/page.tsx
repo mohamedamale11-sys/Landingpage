@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { FearGreedCard } from "@/components/FearGreedCard";
 import { StoryLink } from "@/components/StoryLink";
-import { cleanWireItems, encodeStoryID, fetchLatestPage, isSomaliWireItem } from "@/lib/news";
+import { cleanWireItems, encodeStoryID, fetchLatestPage } from "@/lib/news";
 import { timeAgo } from "@/lib/time";
 import { COURSE_HREF } from "@/lib/constants";
 
@@ -40,8 +40,8 @@ export default async function Home(props: PageProps) {
 
   const page = await fetchLatestPage({ limit: 72, offset, lang: "so" });
   const cleaned = cleanWireItems(page.items);
-  // Enforce Somali-only output on the website (never fall back to English).
-  let items = cleaned.filter(isSomaliWireItem);
+  // Backend enforces Somali; frontend keeps only a lightweight “broken script” guard via cleanWireItems.
+  let items = cleaned;
   if (q) {
     const nq = normalize(q);
     items = items.filter((x) => {

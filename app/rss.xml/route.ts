@@ -10,7 +10,7 @@ function escapeXML(s: string) {
 }
 
 export async function GET() {
-  const items = cleanWireItems(await fetchLatest(60, "so"), { onlySomali: true });
+  const items = cleanWireItems(await fetchLatest(60, "so"));
   const base =
     process.env.SITE_URL && process.env.SITE_URL.trim() !== ""
       ? process.env.SITE_URL.replace(/\/+$/, "")
