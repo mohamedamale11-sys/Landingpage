@@ -27,11 +27,109 @@ type LatestResponse = {
   error?: string;
 };
 
-export function cleanWireItems(items: WireItem[]) {
+function escapeRegExp(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function countWord(text: string, word: string) {
+  const re = new RegExp(`\\b${escapeRegExp(word)}\\b`, "g");
+  return (text.match(re) || []).length;
+}
+
+function scoreSomaliText(text: string) {
+  const t = (text || "").toLowerCase();
+  if (!t.trim()) return 0;
+
+  let score = 0;
+
+  // Common Somali function words and phrases (lightweight heuristic).
+  const strongPhrases: Array<[string, number]> = [
+    ["ku saabsan", 4],
+    ["la xiriira", 4],
+    ["si ay", 3],
+  ];
+  for (const [p, w] of strongPhrases) {
+    if (t.includes(p)) score += w;
+  }
+
+  const words: Array<[string, number]> = [
+    ["oo", 2],
+    ["iyo", 2],
+    ["ayaa", 3],
+    ["waxaa", 3],
+    ["inay", 2],
+    ["u", 1],
+    ["ku", 1],
+    ["ka", 1],
+    ["la", 1],
+    ["leh", 2],
+    ["sida", 2],
+    ["marka", 2],
+    ["kadib", 2],
+    ["kaddib", 2],
+    ["shirkadda", 2],
+    ["madaxweynaha", 2],
+    ["hay'adda", 2],
+    ["suuqa", 2],
+    ["qiimaha", 2],
+    ["maalgashi", 2],
+    ["dhaqaale", 2],
+    ["sharci", 2],
+    ["siyaasad", 2],
+  ];
+  for (const [w, weight] of words) {
+    const n = countWord(t, w);
+    if (n) score += n * weight;
+  }
+
+  // Penalize very English-looking strings.
+  const englishStop: Array<[string, number]> = [
+    ["the", 2],
+    ["and", 1],
+    ["to", 1],
+    ["of", 1],
+    ["in", 1],
+    ["for", 1],
+    ["with", 1],
+    ["on", 1],
+    ["as", 1],
+    ["after", 1],
+    ["before", 1],
+    ["amid", 1],
+    ["says", 1],
+  ];
+  for (const [w, weight] of englishStop) {
+    const n = countWord(t, w);
+    if (n) score -= n * weight;
+  }
+
+  return score;
+}
+
+export function scoreSomaliWireItem(it: WireItem) {
+  const title = it.title || "";
+  const summary = it.summary || "";
+  const rt = (it.reading_time || "").toLowerCase();
+
+  let s = 0;
+  s += scoreSomaliText(title) * 3;
+  s += scoreSomaliText(summary);
+  if (rt.includes("daqiiqo") || rt.includes("saac") || rt.includes("ka yar")) s += 3;
+  return s;
+}
+
+export function isSomaliWireItem(it: WireItem) {
+  return scoreSomaliWireItem(it) >= 4;
+}
+
+export function cleanWireItems(
+  items: WireItem[],
+  opts?: { onlySomali?: boolean },
+) {
   // MVP guard:
   // - remove obvious non-target translations (Korean/Filipino)
   // - remove non-Latin scripts that make the feed look broken (CJK/Hangul/Cyrillic)
-  // - de-dupe CoinDesk translation variants by preferring the non-prefixed URL
+  // - de-dupe CoinDesk translation variants by preferring Somali-looking text when possible
   const badScript = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff]/;
 
   function urlInfo(raw: string) {
@@ -72,13 +170,30 @@ export function cleanWireItems(items: WireItem[]) {
       bestByCanonical.set(key, it);
       continue;
     }
-    const a = urlInfo(existing.url);
-    const b = ui;
-    const score = (i: ReturnType<typeof urlInfo>) => (i.ok && !i.hasLang ? 10 : 0);
-    if (score(b) > score(a)) bestByCanonical.set(key, it);
+
+    const a = existing;
+    const b = it;
+    const sa = scoreSomaliWireItem(a);
+    const sb = scoreSomaliWireItem(b);
+    if (sb > sa) {
+      bestByCanonical.set(key, it);
+      continue;
+    }
+    if (sb < sa) continue;
+
+    // Tie-break: prefer URLs without a locale prefix.
+    const ua = urlInfo(a.url);
+    const ub = urlInfo(b.url);
+    const baseScore = (u: ReturnType<typeof urlInfo>) => (u.ok && !u.hasLang ? 1 : 0);
+    if (baseScore(ub) > baseScore(ua)) bestByCanonical.set(key, it);
   }
 
-  return [...bestByCanonical.values()];
+  const out = [...bestByCanonical.values()];
+  if (!opts?.onlySomali) return out;
+
+  // Only show Somali-looking text by default. Keep it conservative: if we filter too hard,
+  // the homepage may look empty, so callers can decide to fall back.
+  return out.filter(isSomaliWireItem);
 }
 
 export function encodeStoryID(url: string) {

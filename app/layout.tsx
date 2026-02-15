@@ -25,16 +25,16 @@ const fontMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "MxCrypto AI News",
-    template: "%s | MxCrypto AI News",
+    default: "MxCrypto | Wararka Crypto",
+    template: "%s | MxCrypto",
   },
-  description: "Somali-first crypto news, fast and clean.",
-  applicationName: "MxCrypto AI News",
+  description: "Wararka crypto ee af-Soomaali, degdeg oo nadiif ah.",
+  applicationName: "MxCrypto",
   metadataBase: process.env.SITE_URL ? new URL(process.env.SITE_URL) : undefined,
   alternates: { canonical: "/" },
   openGraph: {
-    title: "MxCrypto AI News",
-    description: "Somali-first crypto news, fast and clean.",
+    title: "MxCrypto | Wararka Crypto",
+    description: "Wararka crypto ee af-Soomaali, degdeg oo nadiif ah.",
     type: "website",
   },
   robots: {
@@ -49,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="so">
       <body
         className={`${fontHead.variable} ${fontBody.variable} ${fontMono.variable} mx-body antialiased`}
       >

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { FearGreedCard } from "@/components/FearGreedCard";
 import { StoryLink } from "@/components/StoryLink";
-import { cleanWireItems, encodeStoryID, fetchLatestPage } from "@/lib/news";
+import { cleanWireItems, encodeStoryID, fetchLatestPage, isSomaliWireItem } from "@/lib/news";
 import { timeAgo } from "@/lib/time";
 
 type PageProps = {
@@ -18,14 +18,22 @@ function normalize(s: string) {
 
 function displaySection(section?: string) {
   switch (section) {
+    case "News":
+      return "Warar";
     case "Suuqyada":
-      return "Markets";
+      return "Suuqyada";
     case "Siyaasad & Sharci":
-      return "Policy";
+      return "Siyaasad & Sharci";
+    case "Finance":
+      return "Maaliyad";
     case "Teknoolojiyad":
-      return "Tech";
+      return "Teknoolojiyad";
+    case "CoinDesk Indices":
+      return "Indhisyada CoinDesk";
+    case "Crypto Daybook Americas":
+      return "Crypto Daybook (Ameerika)";
     default:
-      return section || "News";
+      return section || "Warar";
   }
 }
 
@@ -50,7 +58,9 @@ export default async function Home(props: PageProps) {
   const offset = Number.isFinite(offsetRaw) && offsetRaw > 0 ? offsetRaw : 0;
 
   const page = await fetchLatestPage({ limit: 72, offset, lang: "so" });
-  const unfiltered = cleanWireItems(page.items);
+  const cleaned = cleanWireItems(page.items);
+  const somaliOnly = cleaned.filter(isSomaliWireItem);
+  const unfiltered = somaliOnly.length >= 8 ? somaliOnly : cleaned;
 
   let items = unfiltered;
   if (section) items = items.filter((x) => (x.section || "") === section);
@@ -99,10 +109,12 @@ export default async function Home(props: PageProps) {
     <main className="mx-container pt-6 pb-16">
       <div className="border-b mx-hairline pb-4">
         <div className="mx-mono text-[12px] font-semibold tracking-widest text-white/60">
-          LATEST CRYPTO NEWS
+          WARARKII UGU DAMBEEYAY EE CRYPTO
         </div>
         <div className="mx-mono mt-2 flex flex-wrap items-center gap-2 text-[11px] text-white/45">
-          <span>{updatedAt ? `Updated ${timeAgo(updatedAt)}` : "Live"}</span>
+          <span>
+            {updatedAt ? `La cusbooneysiiyay ${timeAgo(updatedAt)}` : "Toos"}
+          </span>
           <span className="text-white/25">•</span>
           <Link href="/rss.xml" className="text-white/55 hover:text-white/85">
             RSS
@@ -110,13 +122,13 @@ export default async function Home(props: PageProps) {
           {page.total && !q && !section ? (
             <>
               <span className="text-white/25">•</span>
-              <span>{page.total} stories</span>
+              <span>{page.total} qoraal</span>
             </>
           ) : null}
           {q || section ? (
             <>
               <span className="text-white/25">•</span>
-              <span>{items.length} results</span>
+              <span>{items.length} natiijo</span>
             </>
           ) : null}
         </div>
@@ -125,19 +137,19 @@ export default async function Home(props: PageProps) {
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {section ? (
               <span className="mx-mono rounded-full border mx-hairline bg-white/[0.03] px-3 py-1 text-[11px] font-semibold text-white/75">
-                Section: {displaySection(section)}
+                Qaybta: {displaySection(section)}
               </span>
             ) : null}
             {q ? (
               <span className="mx-mono rounded-full border mx-hairline bg-white/[0.03] px-3 py-1 text-[11px] font-semibold text-white/75">
-                Search: {q}
+                Raadi: {q}
               </span>
             ) : null}
             <Link
               href={clearHref}
               className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-3 py-1 text-[11px] font-semibold text-white/60 hover:bg-white/[0.06] hover:text-white/85"
             >
-              Clear
+              Nadiifi
             </Link>
           </div>
         ) : null}
@@ -147,7 +159,7 @@ export default async function Home(props: PageProps) {
         <aside className="order-2 lg:order-1 lg:pr-6 lg:border-r mx-hairline">
           <div className="flex items-center justify-between">
             <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
-              LATEST
+              UGU DAMBEEYAY
             </div>
           </div>
           <div className="mt-3 divide-y mx-hairline">
@@ -160,7 +172,7 @@ export default async function Home(props: PageProps) {
             ) : (
               <div className="py-10">
                 <div className="mx-mono text-[12px] text-white/55">
-                  No stories found.
+                  Warar lama helin.
                 </div>
               </div>
             )}
@@ -208,14 +220,14 @@ export default async function Home(props: PageProps) {
             </Link>
           ) : (
             <div className="mx-panel p-6">
-              <div className="mx-mono text-[12px] text-white/55">Loading…</div>
+              <div className="mx-mono text-[12px] text-white/55">Soo dhacaya…</div>
             </div>
           )}
 
           <div className="mt-8">
             <div className="flex items-center justify-between border-b mx-hairline pb-3">
               <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
-                MORE NEWS
+                WARAR DHEERAAD AH
               </div>
             </div>
             <div className="divide-y mx-hairline">
@@ -231,12 +243,12 @@ export default async function Home(props: PageProps) {
             <div className="mx-mono text-[11px] text-white/45">
               {page.total && !q && !section ? (
                 <>
-                  Showing{" "}
+                  Muujinaya{" "}
                   <span className="text-white/70">{offset + 1}</span>-
                   <span className="text-white/70">
                     {Math.min(offset + page.limit, page.total)}
                   </span>{" "}
-                  of <span className="text-white/70">{page.total}</span>
+                  ee <span className="text-white/70">{page.total}</span>
                 </>
               ) : null}
             </div>
@@ -247,7 +259,7 @@ export default async function Home(props: PageProps) {
                   href={hrefWith(params, { offset: prevOffset ? String(prevOffset) : null })}
                   className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
                 >
-                  ← Newer
+                  ← Cusub
                 </Link>
               ) : null}
               {nextOffset !== null ? (
@@ -255,7 +267,7 @@ export default async function Home(props: PageProps) {
                   href={hrefWith(params, { offset: String(nextOffset) })}
                   className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
                 >
-                  Older →
+                  Hore →
                 </Link>
               ) : null}
             </div>
@@ -266,7 +278,7 @@ export default async function Home(props: PageProps) {
           <div className="space-y-4">
             <section className="mx-panel p-4">
               <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
-                BROWSE
+                BAADH
               </div>
               <div className="mt-3 space-y-1">
                 {browse.map((b) => (
@@ -290,7 +302,7 @@ export default async function Home(props: PageProps) {
                 ))}
               </div>
               <div className="mx-mono mt-3 text-[11px] text-white/35">
-                Browse by section, or use search for keywords.
+                Ka baadh qaybaha, ama ku raadi ereyo muhiim ah.
               </div>
             </section>
 
@@ -298,20 +310,20 @@ export default async function Home(props: PageProps) {
 
             <section className="mx-panel p-4">
               <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
-                FEEDS
+                QUUDINTA
               </div>
               <div className="mt-3 space-y-2 text-[13px] text-white/70">
                 <Link
                   href="/rss.xml"
                   className="block rounded-xl border mx-hairline bg-white/[0.02] px-3 py-2 hover:bg-white/[0.06]"
                 >
-                  RSS feed
+                  RSS
                 </Link>
                 <a
                   href="/api/news/latest?limit=20"
                   className="block rounded-xl border mx-hairline bg-white/[0.02] px-3 py-2 hover:bg-white/[0.06]"
                 >
-                  Developer API (JSON)
+                  API (JSON)
                 </a>
               </div>
             </section>

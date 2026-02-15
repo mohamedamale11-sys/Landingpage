@@ -1,20 +1,28 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { cleanWireItems, decodeStoryID, fetchLatest, fetchNewsItemByURL } from "@/lib/news";
+import { cleanWireItems, decodeStoryID, fetchLatest, fetchNewsItemByURL, isSomaliWireItem } from "@/lib/news";
 import { formatDateUTC, timeAgo } from "@/lib/time";
 import { StoryLink } from "@/components/StoryLink";
 
 function displaySection(section?: string) {
   switch (section) {
+    case "News":
+      return "Warar";
     case "Suuqyada":
-      return "Markets";
+      return "Suuqyada";
     case "Siyaasad & Sharci":
-      return "Policy";
+      return "Siyaasad & Sharci";
+    case "Finance":
+      return "Maaliyad";
     case "Teknoolojiyad":
-      return "Tech";
+      return "Teknoolojiyad";
+    case "CoinDesk Indices":
+      return "Indhisyada CoinDesk";
+    case "Crypto Daybook Americas":
+      return "Crypto Daybook (Ameerika)";
     default:
-      return section || "News";
+      return section || "Warar";
   }
 }
 
@@ -28,13 +36,13 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   try {
     url = decodeStoryID(id);
   } catch {
-    return { title: "Story not found" };
+    return { title: "Qoraal lama helin" };
   }
   const item = await fetchNewsItemByURL(url, "so");
-  if (!item) return { title: "Story not found" };
+  if (!item) return { title: "Qoraal lama helin" };
 
-  const title = item.title || "News";
-  const description = item.summary || "MxCrypto AI News story";
+  const title = item.title || "Warar";
+  const description = item.summary || "Wararka MxCrypto";
   return {
     title,
     description,
@@ -155,7 +163,7 @@ export default async function NewsDetailPage(props: PageProps) {
           ) : (
             <div className="mt-6 mx-panel p-4">
               <div className="mx-mono text-[12px] text-white/55">
-                Content not available in the feed.
+                Qoraalka buuxa lama helin.
               </div>
             </div>
           )}
@@ -167,13 +175,13 @@ export default async function NewsDetailPage(props: PageProps) {
               rel="noopener noreferrer nofollow"
               className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
             >
-              Open Original ↗
+              Fur Asalka ↗
             </a>
             <Link
               href="/"
               className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
             >
-              Back to Feed
+              Ku noqo Wararka
             </Link>
           </div>
         </article>
@@ -181,7 +189,7 @@ export default async function NewsDetailPage(props: PageProps) {
         <aside className="space-y-4">
           <section className="mx-panel p-4">
             <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
-              UPDATED
+              LA CUSBOONEYSIYAY
             </div>
             <div className="mt-2 text-[13px] leading-relaxed text-white/70">
               {timeAgo(published)}.
@@ -191,7 +199,7 @@ export default async function NewsDetailPage(props: PageProps) {
           <section className="mx-panel overflow-hidden">
             <div className="border-b mx-hairline px-4 py-3">
               <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
-                MORE NEWS
+                WARAR DHEERAAD AH
               </div>
             </div>
             <MoreNews currentUrl={item.url} currentSection={item.section} />
@@ -204,7 +212,11 @@ export default async function NewsDetailPage(props: PageProps) {
 
 async function MoreNews(props: { currentUrl: string; currentSection?: string }) {
   const raw = await fetchLatest(36, "so");
-  const items = cleanWireItems(raw).filter((x) => x.url !== props.currentUrl);
+  const cleaned = cleanWireItems(raw);
+  const somaliOnly = cleaned.filter(isSomaliWireItem);
+  const items = (somaliOnly.length >= 4 ? somaliOnly : cleaned).filter(
+    (x) => x.url !== props.currentUrl,
+  );
 
   const sameSection = props.currentSection
     ? items.filter((x) => x.section === props.currentSection).slice(0, 6)

@@ -24,7 +24,7 @@ export async function PriceBar() {
       <div className="mx-container">
         <div className="flex items-center gap-4 py-2">
           <div className="mx-mono hidden text-[11px] font-semibold tracking-widest text-white/55 sm:block">
-            LIVE PRICES
+            QIIMAHA TOOSKA AH
           </div>
 
           <div className="mx-mono flex flex-1 items-center gap-6 overflow-x-auto text-[12px] text-white/75 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -48,11 +48,10 @@ export async function PriceBar() {
           </div>
 
           <div className="mx-mono hidden text-[11px] text-white/30 md:block">
-            Data: CoinGecko
+            Xog: CoinGecko
           </div>
         </div>
       </div>
     </div>
   );
 }
-

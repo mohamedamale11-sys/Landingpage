@@ -5,14 +5,22 @@ import { timeAgo } from "@/lib/time";
 
 function displaySection(section?: string) {
   switch (section) {
+    case "News":
+      return "Warar";
     case "Suuqyada":
-      return "Markets";
+      return "Suuqyada";
     case "Siyaasad & Sharci":
-      return "Policy";
+      return "Siyaasad & Sharci";
+    case "Finance":
+      return "Maaliyad";
     case "Teknoolojiyad":
-      return "Tech";
+      return "Teknoolojiyad";
+    case "CoinDesk Indices":
+      return "Indhisyada CoinDesk";
+    case "Crypto Daybook Americas":
+      return "Crypto Daybook (Ameerika)";
     default:
-      return section || "News";
+      return section || "Warar";
   }
 }
 

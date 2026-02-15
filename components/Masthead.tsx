@@ -16,11 +16,11 @@ function LogoMark() {
 type NavItem = { label: string; section: string | null };
 
 const NAV: NavItem[] = [
-  { label: "News", section: null },
-  { label: "Markets", section: "Suuqyada" },
-  { label: "Policy", section: "Siyaasad & Sharci" },
-  { label: "Finance", section: "Finance" },
-  { label: "Tech", section: "Teknoolojiyad" },
+  { label: "Warar", section: null },
+  { label: "Suuqyada", section: "Suuqyada" },
+  { label: "Siyaasad", section: "Siyaasad & Sharci" },
+  { label: "Maaliyad", section: "Finance" },
+  { label: "Teknooloji", section: "Teknoolojiyad" },
 ];
 
 function buildHref(params: URLSearchParams, patch: Record<string, string | null>) {
@@ -70,7 +70,7 @@ export function Masthead() {
                 MxCrypto
               </div>
               <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
-                CRYPTO NEWS
+                WARARKA CRYPTO
               </div>
             </div>
           </Link>
@@ -96,7 +96,7 @@ export function Masthead() {
             <button
               type="button"
               className="grid h-10 w-10 place-items-center rounded-xl border mx-hairline bg-white/[0.02] text-white/75 hover:bg-white/[0.05] hover:text-white"
-              aria-label="Search"
+              aria-label="Raadi"
               onClick={() => setSearchOpen((v) => !v)}
             >
               {searchOpen ? <X size={18} /> : <Search size={18} />}
@@ -139,14 +139,14 @@ export function Masthead() {
               <input
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder="Search headlines…"
+                placeholder="Raadi cinwaanada…"
                 className="h-10 w-full rounded-xl border mx-hairline bg-black/20 px-3 text-[14px] text-white/85 placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[rgba(56,189,248,0.25)]"
               />
               <button
                 type="submit"
                 className="h-10 shrink-0 rounded-xl border mx-hairline bg-white/[0.04] px-4 mx-mono text-[12px] font-semibold text-white/80 hover:bg-white/[0.08]"
               >
-                Go
+                Raadi
               </button>
             </form>
           </div>

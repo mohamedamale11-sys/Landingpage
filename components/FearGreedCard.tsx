@@ -4,6 +4,23 @@ function clamp(n: number, a: number, b: number) {
   return Math.max(a, Math.min(b, n));
 }
 
+function classifySo(c: string) {
+  switch ((c || "").trim().toLowerCase()) {
+    case "extreme fear":
+      return "Cabsi aad u daran";
+    case "fear":
+      return "Cabsi";
+    case "neutral":
+      return "Dhexdhexaad";
+    case "greed":
+      return "Damac";
+    case "extreme greed":
+      return "Damac aad u daran";
+    default:
+      return c || "Dareen";
+  }
+}
+
 export async function FearGreedCard() {
   const fng = await fetchFearGreed();
   if (!fng) return null;
@@ -14,7 +31,7 @@ export async function FearGreedCard() {
   return (
     <section className="mx-panel p-4">
       <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
-        MARKET SENTIMENT
+        DAREENKA SUUQA
       </div>
 
       <div className="mt-3 flex items-end justify-between gap-4">
@@ -23,7 +40,7 @@ export async function FearGreedCard() {
             {v}
           </div>
           <div className="mx-mono mt-2 text-[12px] text-white/60">
-            {fng.classification}
+            {classifySo(fng.classification)}
           </div>
         </div>
 
@@ -35,11 +52,10 @@ export async function FearGreedCard() {
             />
           </div>
           <div className="mx-mono mt-2 text-[11px] text-white/35">
-            Source: Alternative.me
+            Xog: Alternative.me
           </div>
         </div>
       </div>
     </section>
   );
 }
-

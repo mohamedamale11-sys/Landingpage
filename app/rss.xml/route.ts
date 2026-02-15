@@ -10,13 +10,13 @@ function escapeXML(s: string) {
 }
 
 export async function GET() {
-  const items = cleanWireItems(await fetchLatest(60, "so"));
+  const items = cleanWireItems(await fetchLatest(60, "so"), { onlySomali: true });
   const base =
     process.env.SITE_URL && process.env.SITE_URL.trim() !== ""
       ? process.env.SITE_URL.replace(/\/+$/, "")
       : "";
 
-  const siteTitle = "MxCrypto AI News";
+  const siteTitle = "MxCrypto | Wararka Crypto";
   const siteURL = base || "";
 
   const xmlItems = items
@@ -28,7 +28,7 @@ export async function GET() {
       const desc = escapeXML(it.summary || "");
       return [
         "<item>",
-        `<title>${escapeXML(it.title || "News")}</title>`,
+        `<title>${escapeXML(it.title || "Warar")}</title>`,
         `<link>${escapeXML(link)}</link>`,
         `<guid isPermaLink="false">${escapeXML(it.url || link)}</guid>`,
         `<pubDate>${escapeXML(pubDate)}</pubDate>`,
@@ -45,7 +45,7 @@ export async function GET() {
   <channel>
     <title>${escapeXML(siteTitle)}</title>
     <link>${escapeXML(siteURL || "/")}</link>
-    <description>${escapeXML("Somali-first crypto news, fast and clean.")}</description>
+    <description>${escapeXML("Wararka crypto ee af-Soomaali, degdeg oo nadiif ah.")}</description>
     ${xmlItems}
   </channel>
 </rss>`;
