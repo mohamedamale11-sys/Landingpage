@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FearGreedCard } from "@/components/FearGreedCard";
 import { StoryLink } from "@/components/StoryLink";
 import { cleanWireItems, encodeStoryID, fetchLatestPage } from "@/lib/news";
 import { timeAgo } from "@/lib/time";
@@ -292,6 +293,8 @@ export default async function Home(props: PageProps) {
                 Browse by section, or use search for keywords.
               </div>
             </section>
+
+            <FearGreedCard />
 
             <section className="mx-panel p-4">
               <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
