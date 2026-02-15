@@ -4,11 +4,18 @@ import Link from "next/link";
 import { Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { COURSE_HREF } from "@/lib/constants";
 
 function LogoMark() {
   return (
-    <div className="grid h-9 w-9 place-items-center rounded-xl border mx-hairline bg-white/[0.03]">
-      <div className="h-4 w-4 rotate-45 border mx-hairline" />
+    <div className="grid h-9 w-9 place-items-center overflow-hidden rounded-xl border mx-hairline bg-white/[0.02]">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/brand/mxcrypto-mark.png"
+        alt="MxCrypto"
+        className="h-full w-full object-cover"
+        loading="eager"
+      />
     </div>
   );
 }
@@ -90,9 +97,24 @@ export function Masthead() {
                 {it.label}
               </Link>
             ))}
+
+            <Link
+              href="/baro"
+              className="mx-mono text-[12px] font-semibold tracking-widest text-white/70 hover:text-white"
+            >
+              Baro
+            </Link>
           </nav>
 
           <div className="flex items-center gap-2">
+            <a
+              href={COURSE_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mx-mono hidden rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white lg:inline-flex"
+            >
+              Koorso Bilaash
+            </a>
             <button
               type="button"
               className="grid h-10 w-10 place-items-center rounded-xl border mx-hairline bg-white/[0.02] text-white/75 hover:bg-white/[0.05] hover:text-white"
@@ -123,6 +145,12 @@ export function Masthead() {
                   {it.label}
                 </Link>
               ))}
+              <Link
+                href="/baro"
+                className="shrink-0 rounded-full border border-[rgb(var(--accent)/0.25)] bg-[rgb(var(--accent)/0.08)] px-3 py-2 text-white/90 hover:bg-[rgb(var(--accent)/0.12)]"
+              >
+                Baro
+              </Link>
             </div>
           </div>
         </div>
@@ -140,7 +168,7 @@ export function Masthead() {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder="Raadi cinwaanada…"
-                className="h-10 w-full rounded-xl border mx-hairline bg-black/20 px-3 text-[14px] text-white/85 placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[rgba(56,189,248,0.25)]"
+                className="h-10 w-full rounded-xl border mx-hairline bg-black/20 px-3 text-[14px] text-white/85 placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--accent)/0.28)]"
               />
               <button
                 type="submit"

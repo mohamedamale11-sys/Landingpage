@@ -4,27 +4,7 @@ import { notFound } from "next/navigation";
 import { cleanWireItems, decodeStoryID, fetchLatest, fetchNewsItemByURL, isSomaliWireItem } from "@/lib/news";
 import { formatDateUTC, timeAgo } from "@/lib/time";
 import { StoryLink } from "@/components/StoryLink";
-
-function displaySection(section?: string) {
-  switch (section) {
-    case "News":
-      return "Warar";
-    case "Suuqyada":
-      return "Suuqyada";
-    case "Siyaasad & Sharci":
-      return "Siyaasad & Sharci";
-    case "Finance":
-      return "Maaliyad";
-    case "Teknoolojiyad":
-      return "Teknoolojiyad";
-    case "CoinDesk Indices":
-      return "Indhisyada CoinDesk";
-    case "Crypto Daybook Americas":
-      return "Crypto Daybook (Ameerika)";
-    default:
-      return section || "Warar";
-  }
-}
+import { displaySection } from "@/lib/sections";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -81,10 +61,10 @@ export default async function NewsDetailPage(props: PageProps) {
     dateModified: published,
     author: item.author
       ? [{ "@type": "Person", name: item.author }]
-      : [{ "@type": "Organization", name: item.source || "Wire" }],
+      : [{ "@type": "Organization", name: "MxCrypto" }],
     publisher: {
       "@type": "Organization",
-      name: "MxCrypto AI News",
+      name: "MxCrypto",
     },
     mainEntityOfPage: {
       "@type": "WebPage",
@@ -113,8 +93,6 @@ export default async function NewsDetailPage(props: PageProps) {
 
           <div className="mx-mono mt-4 flex flex-wrap items-center gap-2 text-[12px] text-white/45">
             <span className="text-white/65">{formatDateUTC(published)} UTC</span>
-            <span className="text-white/25">•</span>
-            <span>{item.source || "Wire"}</span>
             {item.reading_time ? (
               <>
                 <span className="text-white/25">•</span>
@@ -167,6 +145,16 @@ export default async function NewsDetailPage(props: PageProps) {
               </div>
             </div>
           )}
+
+          <div className="mt-6 mx-panel p-4">
+            <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
+              XUSUUSIN
+            </div>
+            <div className="mt-2 text-[13px] leading-relaxed text-white/70">
+              Wararkan waa soo koobid/tarjumid. Haddii aad rabto faahfaahin dheeraad ah,
+              fur isha asalka ah.
+            </div>
+          </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <a

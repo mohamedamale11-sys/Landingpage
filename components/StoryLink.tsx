@@ -2,27 +2,7 @@ import Link from "next/link";
 import type { WireItem } from "@/lib/news";
 import { encodeStoryID } from "@/lib/news";
 import { timeAgo } from "@/lib/time";
-
-function displaySection(section?: string) {
-  switch (section) {
-    case "News":
-      return "Warar";
-    case "Suuqyada":
-      return "Suuqyada";
-    case "Siyaasad & Sharci":
-      return "Siyaasad & Sharci";
-    case "Finance":
-      return "Maaliyad";
-    case "Teknoolojiyad":
-      return "Teknoolojiyad";
-    case "CoinDesk Indices":
-      return "Indhisyada CoinDesk";
-    case "Crypto Daybook Americas":
-      return "Crypto Daybook (Ameerika)";
-    default:
-      return section || "Warar";
-  }
-}
+import { displaySection } from "@/lib/sections";
 
 export function StoryLink(props: {
   item: WireItem;
@@ -52,7 +32,7 @@ export function StoryLink(props: {
                 referrerPolicy="no-referrer"
               />
             ) : (
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.12),transparent_60%),linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.01))]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgb(var(--accent)/0.12),transparent_60%),linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.01))]" />
             )}
           </div>
         ) : null}
@@ -70,8 +50,12 @@ export function StoryLink(props: {
           </div>
           <div className="mx-mono mt-2 text-[11px] text-white/45">
             <span className="text-white/50">{timeAgo(item.published_at)}</span>
-            <span className="text-white/25"> • </span>
-            <span>{item.source || "Wire"}</span>
+            {item.reading_time ? (
+              <>
+                <span className="text-white/25"> • </span>
+                <span>{item.reading_time}</span>
+              </>
+            ) : null}
             <span className="text-white/25"> • </span>
             <span className="text-white/55">{section}</span>
           </div>

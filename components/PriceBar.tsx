@@ -46,10 +46,6 @@ export async function PriceBar() {
               </div>
             ))}
           </div>
-
-          <div className="mx-mono hidden text-[11px] text-white/30 md:block">
-            Xog: CoinGecko
-          </div>
         </div>
       </div>
     </div>

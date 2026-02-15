@@ -188,7 +188,18 @@ export function cleanWireItems(
     if (baseScore(ub) > baseScore(ua)) bestByCanonical.set(key, it);
   }
 
-  const out = [...bestByCanonical.values()];
+  function sanitizeTitle(raw: string) {
+    let t = (raw || "").trim();
+    // Remove visible upstream branding from headlines (keep it "MxCrypto"-native).
+    t = t.replace(/^CoinDesk\s+20\s+performance\s+update:\s*/i, "Cusboonaysiin Indhisyada: ");
+    return t;
+  }
+
+  const out = [...bestByCanonical.values()].map((it) => {
+    const nextTitle = sanitizeTitle(it.title || "");
+    if (nextTitle !== (it.title || "")) return { ...it, title: nextTitle };
+    return it;
+  });
   if (!opts?.onlySomali) return out;
 
   // Only show Somali-looking text by default. Keep it conservative: if we filter too hard,

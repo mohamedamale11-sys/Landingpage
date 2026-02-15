@@ -26,6 +26,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "hourly",
       priority: 1,
     },
+    {
+      url: url("/baro"),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: url("/ku-saabsan"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
+    {
+      url: url("/ka-dhaafid"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.3,
+    },
+    {
+      url: url("/asturnaanta"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.2,
+    },
+    {
+      url: url("/xeerar"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.2,
+    },
   ];
 
   for (const it of items.slice(0, 100)) {

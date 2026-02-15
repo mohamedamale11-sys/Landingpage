@@ -3,6 +3,8 @@ import { FearGreedCard } from "@/components/FearGreedCard";
 import { StoryLink } from "@/components/StoryLink";
 import { cleanWireItems, encodeStoryID, fetchLatestPage, isSomaliWireItem } from "@/lib/news";
 import { timeAgo } from "@/lib/time";
+import { displaySection } from "@/lib/sections";
+import { COURSE_HREF } from "@/lib/constants";
 
 type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -14,27 +16,6 @@ function firstStr(v: string | string[] | undefined): string {
 
 function normalize(s: string) {
   return s.toLowerCase();
-}
-
-function displaySection(section?: string) {
-  switch (section) {
-    case "News":
-      return "Warar";
-    case "Suuqyada":
-      return "Suuqyada";
-    case "Siyaasad & Sharci":
-      return "Siyaasad & Sharci";
-    case "Finance":
-      return "Maaliyad";
-    case "Teknoolojiyad":
-      return "Teknoolojiyad";
-    case "CoinDesk Indices":
-      return "Indhisyada CoinDesk";
-    case "Crypto Daybook Americas":
-      return "Crypto Daybook (Ameerika)";
-    default:
-      return section || "Warar";
-  }
 }
 
 function hrefWith(params: URLSearchParams, patch: Record<string, string | null>) {
@@ -193,7 +174,7 @@ export default async function Home(props: PageProps) {
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.18),transparent_60%),linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.01))]" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgb(var(--accent)/0.18),transparent_60%),linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.01))]" />
                 )}
                 <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/80 to-transparent" />
               </div>
@@ -201,8 +182,6 @@ export default async function Home(props: PageProps) {
               <div className="mt-4">
                 <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/60">
                   {displaySection(hero.section).toUpperCase()}{" "}
-                  <span className="text-white/25">•</span>{" "}
-                  <span className="text-white/55">{hero.source || "Wire"}</span>
                 </div>
                 <h1 className="mx-headline mt-3 text-[34px] font-semibold leading-[1.03] text-white group-hover:underline md:text-[52px]">
                   <span className="mx-clamp-3">{hero.title}</span>
@@ -306,11 +285,37 @@ export default async function Home(props: PageProps) {
               </div>
             </section>
 
+            <section className="mx-panel p-4">
+              <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
+                BARO
+              </div>
+              <div className="mt-2 text-[13px] leading-relaxed text-white/70">
+                Bilow koorso bilaash ah oo kuu sharxaysa aasaaska crypto, wallet, amni,
+                iyo sida loo fahmo suuqa.
+              </div>
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <Link
+                  href="/baro"
+                  className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/75 hover:bg-white/[0.06] hover:text-white"
+                >
+                  Baro Crypto
+                </Link>
+                <a
+                  href={COURSE_HREF}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mx-mono rounded-full border mx-hairline bg-[rgb(var(--accent))] px-4 py-2 text-[12px] font-semibold text-black hover:opacity-90"
+                >
+                  Koorso Bilaash ↗
+                </a>
+              </div>
+            </section>
+
             <FearGreedCard />
 
             <section className="mx-panel p-4">
               <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
-                QUUDINTA
+                RAAC
               </div>
               <div className="mt-3 space-y-2 text-[13px] text-white/70">
                 <Link
@@ -319,12 +324,6 @@ export default async function Home(props: PageProps) {
                 >
                   RSS
                 </Link>
-                <a
-                  href="/api/news/latest?limit=20"
-                  className="block rounded-xl border mx-hairline bg-white/[0.02] px-3 py-2 hover:bg-white/[0.06]"
-                >
-                  API (JSON)
-                </a>
               </div>
             </section>
           </div>

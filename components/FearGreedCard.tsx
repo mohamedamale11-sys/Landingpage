@@ -51,9 +51,6 @@ export async function FearGreedCard() {
               style={{ width: pct }}
             />
           </div>
-          <div className="mx-mono mt-2 text-[11px] text-white/35">
-            Xog: Alternative.me
-          </div>
         </div>
       </div>
     </section>

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Masthead } from "@/components/Masthead";
 import { Suspense } from "react";
 import { PriceBar } from "@/components/PriceBar";
+import { SiteFooter } from "@/components/SiteFooter";
 
 const fontHead = Newsreader({
   variable: "--font-head",
@@ -36,6 +37,11 @@ export const metadata: Metadata = {
     title: "MxCrypto | Wararka Crypto",
     description: "Wararka crypto ee af-Soomaali, degdeg oo nadiif ah.",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MxCrypto | Wararka Crypto",
+    description: "Wararka crypto ee af-Soomaali, degdeg oo nadiif ah.",
   },
   robots: {
     index: true,
@@ -71,6 +77,7 @@ export default function RootLayout({
           </Suspense>
           <PriceBar />
           {children}
+          <SiteFooter />
         </div>
       </body>
     </html>
