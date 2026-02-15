@@ -16,7 +16,7 @@ export async function GET() {
       ? process.env.SITE_URL.replace(/\/+$/, "")
       : "";
 
-  const siteTitle = "MxCrypto | Wararka Crypto";
+  const siteTitle = "MxCrypto | Wararka Crypto Somali";
   const siteURL = base || "";
 
   const xmlItems = items

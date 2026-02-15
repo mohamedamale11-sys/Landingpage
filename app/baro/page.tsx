@@ -6,12 +6,23 @@ export const metadata: Metadata = {
   title: "Baro Crypto (Koorso Bilaash ah)",
   description:
     "Baro aasaaska crypto: wallet, exchanges, amni, DeFi, iyo sida loo fahmo suuqa. Koorso bilaash ah oo ka socota MxCrypto.",
+  keywords: [
+    "baro crypto",
+    "koorso crypto",
+    "bitcoin somali",
+    "ethereum somali",
+    "wallet",
+    "amni",
+    "defi",
+    "blockchain",
+  ],
   alternates: { canonical: "/baro" },
   openGraph: {
     title: "Baro Crypto (Koorso Bilaash ah)",
     description:
       "Baro aasaaska crypto: wallet, exchanges, amni, DeFi, iyo sida loo fahmo suuqa. Koorso bilaash ah.",
     type: "website",
+    images: [{ url: "/brand/mxcrypto-logo.png" }],
   },
 };
 

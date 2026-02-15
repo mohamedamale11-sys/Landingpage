@@ -92,6 +92,10 @@ export default async function Home(props: PageProps) {
         <div className="mx-mono text-[12px] font-semibold tracking-widest text-white/60">
           WARARKII UGU DAMBEEYAY EE CRYPTO
         </div>
+        <div className="mt-2 max-w-[76ch] text-[14px] leading-relaxed text-white/65">
+          Wararka Bitcoin, Ethereum, iyo suuqa crypto ee af-Soomaali. Qiimaha tooska ah
+          iyo soo koobid nadiif ah.
+        </div>
         <div className="mx-mono mt-2 flex flex-wrap items-center gap-2 text-[11px] text-white/45">
           <span>
             {updatedAt ? `La cusbooneysiiyay ${timeAgo(updatedAt)}` : "Toos"}
@@ -137,7 +141,7 @@ export default async function Home(props: PageProps) {
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[320px_minmax(0,1fr)_320px]">
-        <aside className="order-2 lg:order-1 lg:pr-6 lg:border-r mx-hairline">
+        <aside className="order-2 hidden lg:block lg:order-1 lg:pr-6 lg:border-r mx-hairline">
           <div className="flex items-center justify-between">
             <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
               UGU DAMBEEYAY
@@ -285,29 +289,56 @@ export default async function Home(props: PageProps) {
               </div>
             </section>
 
-            <section className="mx-panel p-4">
-              <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
-                BARO
-              </div>
-              <div className="mt-2 text-[13px] leading-relaxed text-white/70">
-                Bilow koorso bilaash ah oo kuu sharxaysa aasaaska crypto, wallet, amni,
-                iyo sida loo fahmo suuqa.
-              </div>
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                <Link
-                  href="/baro"
-                  className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/75 hover:bg-white/[0.06] hover:text-white"
-                >
-                  Baro Crypto
-                </Link>
-                <a
-                  href={COURSE_HREF}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mx-mono rounded-full border mx-hairline bg-[rgb(var(--accent))] px-4 py-2 text-[12px] font-semibold text-black hover:opacity-90"
-                >
-                  Koorso Bilaash ↗
-                </a>
+            <section className="mx-panel overflow-hidden">
+              <div className="relative p-4">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgb(var(--accent)/0.22),transparent_58%),linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.01))]" />
+                <div className="relative">
+                  <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/60">
+                    KOORSO BILAASH
+                  </div>
+                  <div className="mx-headline mt-2 text-[22px] font-semibold leading-tight text-white">
+                    Baro crypto af-Soomaali
+                  </div>
+                  <div className="mt-2 text-[13px] leading-relaxed text-white/70">
+                    Wallet + amni, aasaaska Bitcoin/Ethereum, iyo sida loo fahmo suuqa.
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-2 text-[12px] text-white/70">
+                    <div className="flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[rgb(var(--accent))]" />
+                      Wallet + Amni
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[rgb(var(--accent))]" />
+                      Suuqyada
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[rgb(var(--accent))]" />
+                      DeFi (Bilow)
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[rgb(var(--accent))]" />
+                      Qaladka Caadiga ah
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
+                    <a
+                      href={COURSE_HREF}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mx-mono rounded-full border mx-hairline bg-[rgb(var(--accent))] px-4 py-2 text-[12px] font-semibold text-black hover:opacity-90"
+                    >
+                      Fur Bilaash ↗
+                    </a>
+                    <Link
+                      href="/baro"
+                      className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/75 hover:bg-white/[0.06] hover:text-white"
+                    >
+                      Faahfaahin
+                    </Link>
+                  </div>
+                </div>
               </div>
             </section>
 

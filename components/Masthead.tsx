@@ -6,16 +6,18 @@ import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { COURSE_HREF } from "@/lib/constants";
 
-function LogoMark() {
+function Wordmark(props: { size?: "sm" | "md" }) {
+  const isSm = props.size === "sm";
   return (
-    <div className="grid h-9 w-9 place-items-center overflow-hidden rounded-xl border mx-hairline bg-white/[0.02]">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/brand/mxcrypto-mark.png"
-        alt="MxCrypto"
-        className="h-full w-full object-cover"
-        loading="eager"
-      />
+    <div
+      className={[
+        "mx-headline font-semibold leading-none tracking-tight",
+        isSm ? "text-[18px]" : "text-[20px]",
+      ].join(" ")}
+      aria-label="mxcrypto"
+    >
+      <span className="text-[rgb(var(--accent))]">mx</span>
+      <span className="text-white">crypto</span>
     </div>
   );
 }
@@ -71,11 +73,8 @@ export function Masthead() {
       <div className="mx-container">
         <div className="flex h-14 items-center justify-between gap-3">
           <Link href="/" className="flex items-center gap-3">
-            <LogoMark />
             <div className="leading-tight">
-              <div className="mx-headline text-[18px] font-semibold text-white">
-                MxCrypto
-              </div>
+              <Wordmark />
               <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
                 WARARKA CRYPTO
               </div>

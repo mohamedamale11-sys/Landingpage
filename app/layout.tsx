@@ -5,6 +5,7 @@ import { Masthead } from "@/components/Masthead";
 import { Suspense } from "react";
 import { PriceBar } from "@/components/PriceBar";
 import { SiteFooter } from "@/components/SiteFooter";
+import { CoursePopup } from "@/components/CoursePopup";
 
 const fontHead = Newsreader({
   variable: "--font-head",
@@ -26,22 +27,45 @@ const fontMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "MxCrypto | Wararka Crypto",
+    default: "MxCrypto | Wararka Crypto Somali",
     template: "%s | MxCrypto",
   },
-  description: "Wararka crypto ee af-Soomaali, degdeg oo nadiif ah.",
+  description:
+    "Wararka Bitcoin, Ethereum, iyo suuqa crypto ee af-Soomaali. Qiimaha tooska ah, soo koobid nadiif ah, iyo barashada crypto.",
+  keywords: [
+    "wararka crypto",
+    "wararka crypto somali",
+    "bitcoin somali",
+    "ethereum somali",
+    "qiimaha bitcoin",
+    "qiimaha ethereum",
+    "suuqa crypto",
+    "baro crypto",
+    "wallet",
+    "defi",
+    "blockchain",
+    "altcoins",
+  ],
   applicationName: "MxCrypto",
   metadataBase: process.env.SITE_URL ? new URL(process.env.SITE_URL) : undefined,
   alternates: { canonical: "/" },
   openGraph: {
-    title: "MxCrypto | Wararka Crypto",
-    description: "Wararka crypto ee af-Soomaali, degdeg oo nadiif ah.",
+    title: "MxCrypto | Wararka Crypto Somali",
+    description:
+      "Wararka Bitcoin, Ethereum, iyo suuqa crypto ee af-Soomaali. Degdeg oo nadiif ah.",
     type: "website",
+    images: [{ url: "/brand/mxcrypto-logo.png" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "MxCrypto | Wararka Crypto",
-    description: "Wararka crypto ee af-Soomaali, degdeg oo nadiif ah.",
+    title: "MxCrypto | Wararka Crypto Somali",
+    description:
+      "Wararka Bitcoin, Ethereum, iyo suuqa crypto ee af-Soomaali. Degdeg oo nadiif ah.",
+    images: ["/brand/mxcrypto-logo.png"],
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
   robots: {
     index: true,
@@ -63,22 +87,24 @@ export default function RootLayout({
           <Suspense
             fallback={
               <div className="sticky top-0 z-50 border-b mx-hairline bg-[rgba(0,0,0,0.82)] backdrop-blur-xl">
-                <div className="mx-container">
-                  <div className="flex h-14 items-center">
-                    <div className="mx-mono text-[12px] font-semibold tracking-widest text-white/65">
-                      MxCrypto
-                    </div>
-                  </div>
-                </div>
-              </div>
-            }
-          >
-            <Masthead />
-          </Suspense>
-          <PriceBar />
-          {children}
-          <SiteFooter />
-        </div>
+	                <div className="mx-container">
+	                  <div className="flex h-14 items-center">
+	                    <div className="mx-headline text-[20px] font-semibold leading-none tracking-tight">
+	                      <span className="text-[rgb(var(--accent))]">mx</span>
+	                      <span className="text-white">crypto</span>
+	                    </div>
+	                  </div>
+	                </div>
+	              </div>
+	            }
+	          >
+	            <Masthead />
+	          </Suspense>
+	          <PriceBar />
+	          <CoursePopup />
+	          {children}
+	          <SiteFooter />
+	        </div>
       </body>
     </html>
   );
