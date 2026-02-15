@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     "altcoins",
   ],
   applicationName: "MxCrypto",
-  metadataBase: process.env.SITE_URL ? new URL(process.env.SITE_URL) : undefined,
+  metadataBase: new URL(process.env.SITE_URL || "http://localhost:3000"),
   alternates: { canonical: "/" },
   openGraph: {
     title: "MxCrypto | Wararka Crypto Somali",

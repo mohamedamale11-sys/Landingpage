@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Search, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { COURSE_HREF } from "@/lib/constants";
 
@@ -22,24 +22,16 @@ function Wordmark(props: { size?: "sm" | "md" }) {
   );
 }
 
-type NavItem = { label: string; section: string | null };
-
-const NAV: NavItem[] = [
-  { label: "Warar", section: null },
-  { label: "Suuqyada", section: "Suuqyada" },
-  { label: "Siyaasad", section: "Siyaasad & Sharci" },
-  { label: "Maaliyad", section: "Finance" },
-  { label: "Teknooloji", section: "Teknoolojiyad" },
-];
-
 function buildHref(params: URLSearchParams, patch: Record<string, string | null>) {
   const next = new URLSearchParams(params.toString());
   for (const [k, v] of Object.entries(patch)) {
     if (v === null || v === "") next.delete(k);
     else next.set(k, v);
   }
-  // When changing section/query, reset pagination.
-  if ("section" in patch || "q" in patch) next.delete("offset");
+  // MVP: one unified feed, no section filters.
+  next.delete("section");
+  // When changing query, reset pagination.
+  if ("q" in patch) next.delete("offset");
   const qs = next.toString();
   return qs ? `/?${qs}` : "/";
 }
@@ -53,20 +45,10 @@ export function Masthead() {
   const onBaro = pathname === "/baro";
   const onNews = !onData && !onBaro;
 
-  const activeSection = sp.get("section");
   const q = sp.get("q") || "";
 
   const [searchOpen, setSearchOpen] = useState<boolean>(q.trim() !== "");
   const [draft, setDraft] = useState<string>(q);
-
-  const nav = useMemo(() => {
-    const params = new URLSearchParams(sp.toString());
-    return NAV.map((it) => {
-      const href = buildHref(params, { section: it.section });
-      const isActive = onNews && (it.section ?? null) === (activeSection ?? null);
-      return { ...it, href, isActive };
-    });
-  }, [sp, activeSection, onNews]);
 
   function submitSearch(nextQ: string) {
     const params = new URLSearchParams(sp.toString());
@@ -87,20 +69,15 @@ export function Masthead() {
           </Link>
 
           <nav className="hidden items-center gap-6 lg:flex">
-            {nav.map((it) => (
-              <Link
-                key={it.label}
-                href={it.href}
-                className={[
-                  "mx-mono text-[12px] font-semibold tracking-widest transition",
-                  it.isActive
-                    ? "text-white"
-                    : "text-white/55 hover:text-white/85",
-                ].join(" ")}
-              >
-                {it.label}
-              </Link>
-            ))}
+            <Link
+              href="/"
+              className={[
+                "mx-mono text-[12px] font-semibold tracking-widest transition",
+                onNews ? "text-white" : "text-white/55 hover:text-white/85",
+              ].join(" ")}
+            >
+              Warar
+            </Link>
 
             <Link
               href="/data"
@@ -147,21 +124,18 @@ export function Masthead() {
         <div className="lg:hidden border-t mx-hairline">
           <div className="-mx-4 overflow-x-auto px-4 py-2">
             <div className="mx-mono flex items-center gap-6 text-[12px] font-semibold tracking-widest">
-              {nav.map((it) => (
-                <Link
-                  key={it.label}
-                  href={it.href}
-                  aria-current={it.isActive ? "page" : undefined}
-                  className={[
-                    "shrink-0 border-b-2 pb-2 transition",
-                    it.isActive
-                      ? "border-white/70 text-white"
-                      : "border-transparent text-white/55 hover:text-white/85",
-                  ].join(" ")}
-                >
-                  {it.label}
-                </Link>
-              ))}
+              <Link
+                href="/"
+                aria-current={onNews ? "page" : undefined}
+                className={[
+                  "shrink-0 border-b-2 pb-2 transition",
+                  onNews
+                    ? "border-white/70 text-white"
+                    : "border-transparent text-white/55 hover:text-white/85",
+                ].join(" ")}
+              >
+                Warar
+              </Link>
               <Link
                 href="/data"
                 className={[

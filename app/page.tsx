@@ -3,7 +3,6 @@ import { FearGreedCard } from "@/components/FearGreedCard";
 import { StoryLink } from "@/components/StoryLink";
 import { cleanWireItems, encodeStoryID, fetchLatestPage, isSomaliWireItem } from "@/lib/news";
 import { timeAgo } from "@/lib/time";
-import { displaySection } from "@/lib/sections";
 import { COURSE_HREF } from "@/lib/constants";
 
 type PageProps = {
@@ -24,8 +23,10 @@ function hrefWith(params: URLSearchParams, patch: Record<string, string | null>)
     if (v === null || v === "") next.delete(k);
     else next.set(k, v);
   }
-  // When changing filters, reset pagination.
-  if ("section" in patch || "q" in patch) next.delete("offset");
+  // MVP: one unified feed. Ignore any legacy section filters.
+  next.delete("section");
+  // When changing query, reset pagination.
+  if ("q" in patch) next.delete("offset");
   const qs = next.toString();
   return qs ? `/?${qs}` : "/";
 }
@@ -34,7 +35,6 @@ export default async function Home(props: PageProps) {
   const sp = (await props.searchParams) ?? {};
 
   const q = firstStr(sp.q).trim();
-  const section = firstStr(sp.section).trim();
   const offsetRaw = Number.parseInt(firstStr(sp.offset), 10);
   const offset = Number.isFinite(offsetRaw) && offsetRaw > 0 ? offsetRaw : 0;
 
@@ -44,7 +44,6 @@ export default async function Home(props: PageProps) {
   const unfiltered = somaliOnly.length >= 8 ? somaliOnly : cleaned;
 
   let items = unfiltered;
-  if (section) items = items.filter((x) => (x.section || "") === section);
   if (q) {
     const nq = normalize(q);
     items = items.filter((x) => {
@@ -63,7 +62,6 @@ export default async function Home(props: PageProps) {
 
   const params = new URLSearchParams();
   if (q) params.set("q", q);
-  if (section) params.set("section", section);
   if (offset) params.set("offset", String(offset));
 
   const updatedAt = unfiltered[0]?.published_at || hero?.published_at || "";
@@ -73,18 +71,7 @@ export default async function Home(props: PageProps) {
   const nextOffset =
     page.hasMore && typeof page.nextOffset === "number" ? page.nextOffset : null;
 
-  // Section counts from the current page (unfiltered) for a working "Browse" sidebar.
-  const sectionCounts = new Map<string, number>();
-  for (const it of unfiltered) {
-    const key = it.section || "News";
-    sectionCounts.set(key, (sectionCounts.get(key) || 0) + 1);
-  }
-  const browse = [...sectionCounts.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 8)
-    .map(([key, count]) => ({ key, count, label: displaySection(key) }));
-
-  const showMetaOnMobile = Boolean(q || section);
+  const showMetaOnMobile = Boolean(q);
 
   return (
     <main className="mx-container pt-4 pb-16 sm:pt-6">
@@ -109,13 +96,13 @@ export default async function Home(props: PageProps) {
           <Link href="/rss.xml" className="text-white/55 hover:text-white/85">
             RSS
           </Link>
-          {page.total && !q && !section ? (
+          {page.total && !q ? (
             <>
               <span className="text-white/25">•</span>
               <span>{page.total} qoraal</span>
             </>
           ) : null}
-          {q || section ? (
+          {q ? (
             <>
               <span className="text-white/25">•</span>
               <span>{items.length} natiijo</span>
@@ -123,13 +110,8 @@ export default async function Home(props: PageProps) {
           ) : null}
         </div>
 
-        {q || section ? (
+        {q ? (
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            {section ? (
-              <span className="mx-mono rounded-full border mx-hairline bg-white/[0.03] px-3 py-1 text-[11px] font-semibold text-white/75">
-                Qaybta: {displaySection(section)}
-              </span>
-            ) : null}
             {q ? (
               <span className="mx-mono rounded-full border mx-hairline bg-white/[0.03] px-3 py-1 text-[11px] font-semibold text-white/75">
                 Raadi: {q}
@@ -190,7 +172,7 @@ export default async function Home(props: PageProps) {
 
               <div className="mt-0 sm:mt-4">
                 <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/60">
-                  {displaySection(hero.section).toUpperCase()}{" "}
+                  WARARKA UGU DAMBEEYAY
                 </div>
                 <h1 className="mx-headline mt-3 text-[44px] font-semibold leading-[1.02] text-white group-hover:underline sm:text-[50px] md:text-[60px]">
                   <span className="mx-clamp-3">{hero.title}</span>
@@ -244,7 +226,7 @@ export default async function Home(props: PageProps) {
 
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
             <div className="mx-mono text-[11px] text-white/45">
-              {page.total && !q && !section ? (
+              {page.total && !q ? (
                 <>
                   Muujinaya{" "}
                   <span className="text-white/70">{offset + 1}</span>-
@@ -279,36 +261,6 @@ export default async function Home(props: PageProps) {
 
         <aside className="order-3 hidden lg:block lg:border-l mx-hairline lg:pl-6">
           <div className="space-y-4">
-            <section className="mx-panel p-4">
-              <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
-                BAADH
-              </div>
-              <div className="mt-3 space-y-1">
-                {browse.map((b) => (
-                  <Link
-                    key={b.key}
-                    href={hrefWith(params, { section: b.key === "News" ? null : b.key })}
-                    className={[
-                      "flex items-center justify-between rounded-xl px-3 py-2 transition",
-                      (section || "News") === b.key
-                        ? "bg-white/[0.06] text-white"
-                        : "hover:bg-white/[0.04] text-white/80",
-                    ].join(" ")}
-                  >
-                    <span className="mx-mono text-[12px] font-semibold">
-                      {b.label}
-                    </span>
-                    <span className="mx-mono text-[11px] text-white/50">
-                      {b.count}
-                    </span>
-                  </Link>
-                ))}
-              </div>
-              <div className="mx-mono mt-3 text-[11px] text-white/35">
-                Ka baadh qaybaha, ama ku raadi ereyo muhiim ah.
-              </div>
-            </section>
-
             <section className="mx-panel overflow-hidden">
               <div className="relative p-4">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgb(var(--accent)/0.22),transparent_58%),linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.01))]" />

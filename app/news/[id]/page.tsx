@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { cleanWireItems, decodeStoryID, fetchLatest, fetchNewsItemByURL, isSomaliWireItem } from "@/lib/news";
 import { formatDateUTC, timeAgo } from "@/lib/time";
 import { StoryLink } from "@/components/StoryLink";
-import { displaySection } from "@/lib/sections";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -48,7 +47,6 @@ export default async function NewsDetailPage(props: PageProps) {
   const item = await fetchNewsItemByURL(url, "so");
   if (!item) notFound();
 
-  const section = displaySection(item.section).toUpperCase();
   const published = item.published_at;
   const canonical = `/news/${id}`;
 
@@ -84,7 +82,7 @@ export default async function NewsDetailPage(props: PageProps) {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px] lg:gap-10">
         <article className="min-w-0">
           <div className="mx-mono text-[11px] font-semibold tracking-widest text-[rgb(var(--accent))]">
-            {section}
+            MXCRYPTO
           </div>
 
           <h1 className="mx-headline mt-3 text-[38px] font-semibold leading-[1.03] text-white md:text-[56px]">
@@ -182,7 +180,7 @@ export default async function NewsDetailPage(props: PageProps) {
                 WARAR DHEERAAD AH
               </div>
             </div>
-            <MoreNews currentUrl={item.url} currentSection={item.section} />
+            <MoreNews currentUrl={item.url} />
           </section>
         </aside>
       </div>
@@ -190,7 +188,7 @@ export default async function NewsDetailPage(props: PageProps) {
   );
 }
 
-async function MoreNews(props: { currentUrl: string; currentSection?: string }) {
+async function MoreNews(props: { currentUrl: string }) {
   const raw = await fetchLatest(36, "so");
   const cleaned = cleanWireItems(raw);
   const somaliOnly = cleaned.filter(isSomaliWireItem);
@@ -198,11 +196,7 @@ async function MoreNews(props: { currentUrl: string; currentSection?: string }) 
     (x) => x.url !== props.currentUrl,
   );
 
-  const sameSection = props.currentSection
-    ? items.filter((x) => x.section === props.currentSection).slice(0, 6)
-    : [];
-  const fallback = items.filter((x) => x.section !== props.currentSection).slice(0, 6);
-  const list = sameSection.length ? sameSection : fallback;
+  const list = items.slice(0, 6);
 
   return (
     <div className="divide-y mx-hairline">

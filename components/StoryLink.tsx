@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { WireItem } from "@/lib/news";
 import { encodeStoryID } from "@/lib/news";
 import { timeAgo } from "@/lib/time";
-import { displaySection } from "@/lib/sections";
 
 export function StoryLink(props: {
   item: WireItem;
@@ -11,7 +10,6 @@ export function StoryLink(props: {
 }) {
   const { item } = props;
   const href = `/news/${encodeStoryID(item.url)}`;
-  const section = displaySection(item.section).toUpperCase();
 
   return (
     <Link
@@ -56,8 +54,6 @@ export function StoryLink(props: {
                 <span>{item.reading_time}</span>
               </>
             ) : null}
-            <span className="text-white/25"> • </span>
-            <span className="text-white/55">{section}</span>
           </div>
         </div>
       </div>
