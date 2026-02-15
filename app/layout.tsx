@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Newsreader, Source_Sans_3 } from "next/font/google";
+import { IBM_Plex_Mono, Newsreader, Source_Sans_3, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Masthead } from "@/components/Masthead";
 import { Suspense } from "react";
@@ -23,6 +23,12 @@ const fontMono = IBM_Plex_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
+});
+
+const fontBrand = Space_Grotesk({
+  variable: "--font-brand",
+  subsets: ["latin"],
+  weight: ["600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -81,30 +87,30 @@ export default function RootLayout({
   return (
     <html lang="so">
       <body
-        className={`${fontHead.variable} ${fontBody.variable} ${fontMono.variable} mx-body antialiased`}
+        className={`${fontHead.variable} ${fontBody.variable} ${fontMono.variable} ${fontBrand.variable} mx-body antialiased`}
       >
         <div className="min-h-screen">
           <Suspense
             fallback={
               <div className="sticky top-0 z-50 border-b mx-hairline bg-[rgba(0,0,0,0.82)] backdrop-blur-xl">
-	                <div className="mx-container">
-	                  <div className="flex h-14 items-center">
-	                    <div className="mx-headline text-[20px] font-semibold leading-none tracking-tight">
-	                      <span className="text-[rgb(var(--accent))]">mx</span>
-	                      <span className="text-white">crypto</span>
-	                    </div>
-	                  </div>
-	                </div>
-	              </div>
-	            }
-	          >
-	            <Masthead />
-	          </Suspense>
-	          <PriceBar />
-	          <CoursePopup />
-	          {children}
-	          <SiteFooter />
-	        </div>
+                <div className="mx-container">
+                  <div className="flex h-14 items-center">
+                    <div className="mx-brand text-[20px] font-semibold leading-none tracking-tight">
+                      <span className="text-[rgb(var(--accent))]">Mx</span>
+                      <span className="text-white">Crypto</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          >
+            <Masthead />
+          </Suspense>
+          <PriceBar />
+          <CoursePopup />
+          {children}
+          <SiteFooter />
+        </div>
       </body>
     </html>
   );

@@ -30,7 +30,7 @@ export async function GET() {
         "<item>",
         `<title>${escapeXML(it.title || "Warar")}</title>`,
         `<link>${escapeXML(link)}</link>`,
-        `<guid isPermaLink="false">${escapeXML(it.url || link)}</guid>`,
+        `<guid isPermaLink="true">${escapeXML(link)}</guid>`,
         `<pubDate>${escapeXML(pubDate)}</pubDate>`,
         desc ? `<description>${desc}</description>` : "",
         "</item>",

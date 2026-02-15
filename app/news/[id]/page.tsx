@@ -151,20 +151,12 @@ export default async function NewsDetailPage(props: PageProps) {
               XUSUUSIN
             </div>
             <div className="mt-2 text-[13px] leading-relaxed text-white/70">
-              Wararkan waa soo koobid/tarjumid. Haddii aad rabto faahfaahin dheeraad ah,
-              fur isha asalka ah.
+              Macluumaadkan waa waxbarasho. Ma aha talo maaliyadeed. Ka hor go&apos;aan
+              kasta, samee cilmi-baaris oo xaqiiji xogta.
             </div>
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <a
-              href={item.url}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
-            >
-              Fur Asalka ↗
-            </a>
             <Link
               href="/"
               className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"

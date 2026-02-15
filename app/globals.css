@@ -62,6 +62,11 @@ body::before {
   letter-spacing: -0.02em;
 }
 
+.mx-brand {
+  font-family: var(--font-brand), var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.03em;
+}
+
 .mx-body {
   font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
 }

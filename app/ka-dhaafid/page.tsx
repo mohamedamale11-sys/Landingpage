@@ -35,8 +35,8 @@ export default function DisclaimerPage() {
         <p>
           <span className="text-white/90 font-semibold">Wararka:</span> Qoraallo qaar
           waxay noqon karaan soo koobid ama tarjumid si ay u noqdaan af-Soomaali la
-          fahmi karo. Haddii aad u baahan tahay faahfaahin dheeraad ah, isticmaal
-          link-ga “Fur Asalka”.
+          fahmi karo. Haddii aad u baahan tahay faahfaahin dheeraad ah, ka raadi ilo
+          badan oo aad ku kalsoon tahay.
         </p>
       </div>
     </main>

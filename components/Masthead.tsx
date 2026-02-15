@@ -11,13 +11,13 @@ function Wordmark(props: { size?: "sm" | "md" }) {
   return (
     <div
       className={[
-        "mx-headline font-semibold leading-none tracking-tight",
+        "mx-brand font-semibold leading-none tracking-tight",
         isSm ? "text-[18px]" : "text-[20px]",
       ].join(" ")}
-      aria-label="mxcrypto"
+      aria-label="MxCrypto"
     >
-      <span className="text-[rgb(var(--accent))]">mx</span>
-      <span className="text-white">crypto</span>
+      <span className="text-[rgb(var(--accent))]">Mx</span>
+      <span className="text-white">Crypto</span>
     </div>
   );
 }
@@ -75,7 +75,7 @@ export function Masthead() {
           <Link href="/" className="flex items-center gap-3">
             <div className="leading-tight">
               <Wordmark />
-              <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
+              <div className="mx-mono hidden text-[11px] font-semibold tracking-widest text-white/55 sm:block">
                 WARARKA CRYPTO
               </div>
             </div>
@@ -126,19 +126,19 @@ export function Masthead() {
         </div>
 
         {/* Mobile/Tablet section tabs */}
-        <div className="lg:hidden">
-          <div className="-mx-4 overflow-x-auto px-4 pb-3">
-            <div className="mx-mono flex items-center gap-2 text-[12px] font-semibold tracking-widest">
+        <div className="lg:hidden border-t mx-hairline">
+          <div className="-mx-4 overflow-x-auto px-4 py-2">
+            <div className="mx-mono flex items-center gap-6 text-[12px] font-semibold tracking-widest">
               {nav.map((it) => (
                 <Link
                   key={it.label}
                   href={it.href}
                   aria-current={it.isActive ? "page" : undefined}
                   className={[
-                    "shrink-0 rounded-full border px-3 py-2 transition",
+                    "shrink-0 border-b-2 pb-2 transition",
                     it.isActive
-                      ? "border-white/15 bg-white/[0.06] text-white"
-                      : "border-white/10 bg-white/[0.02] text-white/70 hover:bg-white/[0.05] hover:text-white",
+                      ? "border-white/70 text-white"
+                      : "border-transparent text-white/55 hover:text-white/85",
                   ].join(" ")}
                 >
                   {it.label}
@@ -146,7 +146,7 @@ export function Masthead() {
               ))}
               <Link
                 href="/baro"
-                className="shrink-0 rounded-full border border-[rgb(var(--accent)/0.25)] bg-[rgb(var(--accent)/0.08)] px-3 py-2 text-white/90 hover:bg-[rgb(var(--accent)/0.12)]"
+                className="shrink-0 border-b-2 border-[rgb(var(--accent))] pb-2 text-white/80 hover:text-white"
               >
                 Baro
               </Link>

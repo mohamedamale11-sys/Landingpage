@@ -4,11 +4,11 @@ import { COURSE_HREF } from "@/lib/constants";
 function Wordmark() {
   return (
     <div
-      className="mx-headline text-[20px] font-semibold leading-none tracking-tight"
-      aria-label="mxcrypto"
+      className="mx-brand text-[22px] font-semibold leading-none tracking-tight"
+      aria-label="MxCrypto"
     >
-      <span className="text-[rgb(var(--accent))]">mx</span>
-      <span className="text-white">crypto</span>
+      <span className="text-[rgb(var(--accent))]">Mx</span>
+      <span className="text-white">Crypto</span>
     </div>
   );
 }
@@ -83,7 +83,7 @@ export function SiteFooter() {
 
         <div className="mt-10 flex flex-col gap-3 border-t mx-hairline pt-6 md:flex-row md:items-center md:justify-between">
           <div className="mx-mono text-[11px] text-white/45">
-            © {year} mxcrypto. Dhammaan xuquuqaha way xafidan yihiin.
+            © {year} MxCrypto. Dhammaan xuquuqaha way xafidan yihiin.
           </div>
           <div className="mx-mono text-[11px] text-white/35">
             Macluumaadkan waa waxbarasho. Ma aha talo maaliyadeed.

@@ -167,7 +167,7 @@ export default async function Home(props: PageProps) {
         <section className="order-1 lg:order-2 lg:px-6">
           {hero ? (
             <Link href={`/news/${encodeStoryID(hero.url)}`} className="group block">
-              <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[14px] border mx-hairline bg-black">
+              <div className="relative hidden aspect-[16/9] w-full overflow-hidden rounded-[14px] border mx-hairline bg-black sm:block">
                 {hero.image_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -183,11 +183,11 @@ export default async function Home(props: PageProps) {
                 <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/80 to-transparent" />
               </div>
 
-              <div className="mt-4">
+              <div className="mt-0 sm:mt-4">
                 <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/60">
                   {displaySection(hero.section).toUpperCase()}{" "}
                 </div>
-                <h1 className="mx-headline mt-3 text-[34px] font-semibold leading-[1.03] text-white group-hover:underline md:text-[52px]">
+                <h1 className="mx-headline mt-3 text-[44px] font-semibold leading-[1.02] text-white group-hover:underline sm:text-[50px] md:text-[60px]">
                   <span className="mx-clamp-3">{hero.title}</span>
                 </h1>
                 <div className="mx-mono mt-3 text-[12px] text-white/45">
@@ -257,7 +257,7 @@ export default async function Home(props: PageProps) {
           </div>
         </section>
 
-        <aside className="order-3 lg:border-l mx-hairline lg:pl-6">
+        <aside className="order-3 hidden lg:block lg:border-l mx-hairline lg:pl-6">
           <div className="space-y-4">
             <section className="mx-panel p-4">
               <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
