@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { COURSE_HREF } from "@/lib/constants";
 
 function Wordmark(props: { size?: "sm" | "md" }) {
@@ -45,8 +45,13 @@ function buildHref(params: URLSearchParams, patch: Record<string, string | null>
 }
 
 export function Masthead() {
+  const pathname = usePathname() || "/";
   const sp = useSearchParams();
   const router = useRouter();
+
+  const onData = pathname.startsWith("/data");
+  const onBaro = pathname === "/baro";
+  const onNews = !onData && !onBaro;
 
   const activeSection = sp.get("section");
   const q = sp.get("q") || "";
@@ -58,10 +63,10 @@ export function Masthead() {
     const params = new URLSearchParams(sp.toString());
     return NAV.map((it) => {
       const href = buildHref(params, { section: it.section });
-      const isActive = (it.section ?? null) === (activeSection ?? null);
+      const isActive = onNews && (it.section ?? null) === (activeSection ?? null);
       return { ...it, href, isActive };
     });
-  }, [sp, activeSection]);
+  }, [sp, activeSection, onNews]);
 
   function submitSearch(nextQ: string) {
     const params = new URLSearchParams(sp.toString());
@@ -98,8 +103,21 @@ export function Masthead() {
             ))}
 
             <Link
+              href="/data"
+              className={[
+                "mx-mono text-[12px] font-semibold tracking-widest transition",
+                onData ? "text-white" : "text-white/55 hover:text-white/85",
+              ].join(" ")}
+            >
+              Xog
+            </Link>
+
+            <Link
               href="/baro"
-              className="mx-mono text-[12px] font-semibold tracking-widest text-white/70 hover:text-white"
+              className={[
+                "mx-mono text-[12px] font-semibold tracking-widest transition",
+                onBaro ? "text-white" : "text-white/55 hover:text-white/85",
+              ].join(" ")}
             >
               Baro
             </Link>
@@ -145,8 +163,24 @@ export function Masthead() {
                 </Link>
               ))}
               <Link
+                href="/data"
+                className={[
+                  "shrink-0 border-b-2 pb-2 transition",
+                  onData
+                    ? "border-white/70 text-white"
+                    : "border-transparent text-white/55 hover:text-white/85",
+                ].join(" ")}
+              >
+                Xog
+              </Link>
+              <Link
                 href="/baro"
-                className="shrink-0 border-b-2 border-[rgb(var(--accent))] pb-2 text-white/80 hover:text-white"
+                className={[
+                  "shrink-0 border-b-2 pb-2 transition",
+                  onBaro
+                    ? "border-white/70 text-white"
+                    : "border-transparent text-white/55 hover:text-white/85",
+                ].join(" ")}
               >
                 Baro
               </Link>

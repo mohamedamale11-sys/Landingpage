@@ -89,10 +89,10 @@ export default async function Home(props: PageProps) {
   return (
     <main className="mx-container pt-6 pb-16">
       <div className="border-b mx-hairline pb-4">
-        <div className="mx-mono text-[12px] font-semibold tracking-widest text-white/60">
+        <div className="mx-mono hidden text-[12px] font-semibold tracking-widest text-white/60 sm:block">
           WARARKII UGU DAMBEEYAY EE CRYPTO
         </div>
-        <div className="mt-2 max-w-[76ch] text-[14px] leading-relaxed text-white/65">
+        <div className="mt-2 hidden max-w-[76ch] text-[14px] leading-relaxed text-white/65 sm:block">
           Wararka Bitcoin, Ethereum, iyo suuqa crypto ee af-Soomaali. Qiimaha tooska ah
           iyo soo koobid nadiif ah.
         </div>
