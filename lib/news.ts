@@ -11,6 +11,7 @@ export type WireItem = {
   tags?: string[];
   image_url?: string;
   highlights?: string[];
+  sentiment?: string;
   published_at: string;
   source: string;
   reading_time?: string;

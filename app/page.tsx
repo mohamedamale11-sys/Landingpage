@@ -178,6 +178,7 @@ export default async function Home(props: PageProps) {
                 <div className="mx-mono mt-3 text-[12px] text-white/45">
                   {timeAgo(hero.published_at)}
                   {hero.reading_time ? ` • ${hero.reading_time}` : ""}
+                  {hero.sentiment ? ` • ${hero.sentiment}` : ""}
                 </div>
                 {hero.summary ? (
                   <p className="mt-4 hidden text-[16px] leading-relaxed text-white/70 sm:block">

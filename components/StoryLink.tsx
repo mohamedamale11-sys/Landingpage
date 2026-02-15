@@ -10,6 +10,15 @@ export function StoryLink(props: {
 }) {
   const { item } = props;
   const href = `/news/${encodeStoryID(item.url)}`;
+  const sentimentRaw = (item.sentiment || "").toLowerCase().trim();
+  const sentiment =
+    sentimentRaw.includes("fiican")
+      ? { label: "War fiican", className: "text-emerald-400/90" }
+      : sentimentRaw.includes("xun")
+        ? { label: "War xun", className: "text-red-400/90" }
+        : sentimentRaw.includes("dhexdhexaad")
+          ? { label: "Dhexdhexaad", className: "text-white/55" }
+          : null;
 
   return (
     <Link
@@ -52,6 +61,14 @@ export function StoryLink(props: {
               <>
                 <span className="text-white/25"> • </span>
                 <span>{item.reading_time}</span>
+              </>
+            ) : null}
+            {sentiment ? (
+              <>
+                <span className="text-white/25"> • </span>
+                <span className={["font-semibold", sentiment.className].join(" ")}>
+                  {sentiment.label}
+                </span>
               </>
             ) : null}
           </div>
