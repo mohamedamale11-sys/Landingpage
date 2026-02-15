@@ -200,6 +200,13 @@ export function cleanWireItems(
     if (nextTitle !== (it.title || "")) return { ...it, title: nextTitle };
     return it;
   });
+  out.sort((a, b) => {
+    const ta = Date.parse(a.published_at || "");
+    const tb = Date.parse(b.published_at || "");
+    const na = Number.isFinite(ta) ? ta : 0;
+    const nb = Number.isFinite(tb) ? tb : 0;
+    return nb - na;
+  });
   if (!opts?.onlySomali) return out;
 
   // Only show Somali-looking text by default. Keep it conservative: if we filter too hard,

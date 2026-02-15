@@ -57,17 +57,13 @@ export function CoursePopup() {
     >
       <div className="relative overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_18px_50px_rgba(0,0,0,0.55)]">
         <div className="relative flex items-stretch gap-3 p-3">
-          <div className="grid w-[108px] shrink-0 place-items-center rounded-xl bg-black px-2 py-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/brand/mxcrypto-mark.png"
-              alt="MxCrypto"
-              className="h-10 w-10 object-contain"
-              loading="eager"
-            />
-            <div className="mx-brand mt-2 text-[13px] font-semibold leading-none tracking-tight">
+          <div className="flex w-[108px] shrink-0 flex-col items-center justify-center rounded-xl bg-black px-2 py-2">
+            <div className="mx-brand text-[16px] font-semibold leading-none tracking-tight">
               <span className="text-[rgb(var(--accent))]">Mx</span>
               <span className="text-white">Crypto</span>
+            </div>
+            <div className="mx-mono mt-2 text-[10px] font-semibold tracking-widest text-white/55">
+              BARO
             </div>
           </div>
 

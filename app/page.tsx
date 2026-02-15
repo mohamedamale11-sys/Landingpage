@@ -53,15 +53,13 @@ export default async function Home(props: PageProps) {
     });
   }
 
-  const heroIndex = Math.max(
-    0,
-    items.findIndex((x) => Boolean(x.image_url)),
-  );
-  const hero = items[heroIndex] ?? null;
-  const rest = items.filter((_, i) => i !== heroIndex);
+  // Keep the newest item at the very top. (Desktop can still show imagery; mobile is text-first.)
+  const hero = items[0] ?? null;
+  const rest = items.slice(1);
 
   const left = rest.slice(0, 10);
-  const stream = rest.slice(10, 28);
+  const desktopStream = rest.slice(10, 28);
+  const mobileStream = rest.slice(0, 24);
 
   const params = new URLSearchParams();
   if (q) params.set("q", q);
@@ -86,9 +84,16 @@ export default async function Home(props: PageProps) {
     .slice(0, 8)
     .map(([key, count]) => ({ key, count, label: displaySection(key) }));
 
+  const showMetaOnMobile = Boolean(q || section);
+
   return (
-    <main className="mx-container pt-6 pb-16">
-      <div className="border-b mx-hairline pb-4">
+    <main className="mx-container pt-4 pb-16 sm:pt-6">
+      <div
+        className={[
+          "border-b mx-hairline pb-4",
+          showMetaOnMobile ? "" : "hidden sm:block",
+        ].join(" ")}
+      >
         <div className="mx-mono hidden text-[12px] font-semibold tracking-widest text-white/60 sm:block">
           WARARKII UGU DAMBEEYAY EE CRYPTO
         </div>
@@ -140,7 +145,7 @@ export default async function Home(props: PageProps) {
         ) : null}
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[320px_minmax(0,1fr)_320px]">
+      <div className="mt-4 grid grid-cols-1 gap-10 sm:mt-6 lg:grid-cols-[320px_minmax(0,1fr)_320px]">
         <aside className="order-2 hidden lg:block lg:order-1 lg:pr-6 lg:border-r mx-hairline">
           <div className="flex items-center justify-between">
             <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
@@ -195,7 +200,7 @@ export default async function Home(props: PageProps) {
                   {hero.reading_time ? ` • ${hero.reading_time}` : ""}
                 </div>
                 {hero.summary ? (
-                  <p className="mt-4 text-[16px] leading-relaxed text-white/70">
+                  <p className="mt-4 hidden text-[16px] leading-relaxed text-white/70 sm:block">
                     <span className="mx-clamp-3">{hero.summary}</span>
                   </p>
                 ) : null}
@@ -207,14 +212,29 @@ export default async function Home(props: PageProps) {
             </div>
           )}
 
-          <div className="mt-8">
+          <div className="mt-8 lg:hidden">
+            <div className="flex items-center justify-between border-b mx-hairline pb-3">
+              <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
+                WARAR
+              </div>
+            </div>
+            <div className="divide-y mx-hairline">
+              {mobileStream.map((it) => (
+                <div key={it.id || it.url}>
+                  <StoryLink item={it} dense showThumb />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-8 hidden lg:block">
             <div className="flex items-center justify-between border-b mx-hairline pb-3">
               <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
                 WARAR DHEERAAD AH
               </div>
             </div>
             <div className="divide-y mx-hairline">
-              {stream.map((it) => (
+              {desktopStream.map((it) => (
                 <div key={it.id || it.url}>
                   <StoryLink item={it} dense showThumb />
                 </div>
