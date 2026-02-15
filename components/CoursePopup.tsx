@@ -63,13 +63,13 @@ export function CoursePopup() {
               <span className="text-white">Crypto</span>
             </div>
             <div className="mx-mono mt-1.5 text-[9px] font-semibold tracking-widest text-white/55">
-              BILAASH
+              FREE
             </div>
           </div>
 
           <div className="min-w-0 flex-1 pr-10">
             <div className="mx-mono text-[10px] font-semibold tracking-widest text-black/55">
-              KOORSO BILAASH
+              FREE COURSES
             </div>
             <div className="mx-headline mt-0.5 text-[15px] font-semibold leading-snug text-black">
               Baro Crypto Af-Soomaali
@@ -85,7 +85,7 @@ export function CoursePopup() {
                 rel="noopener noreferrer"
                 className="mx-mono rounded-full bg-[rgb(var(--accent))] px-4 py-2 text-[12px] font-semibold text-black hover:opacity-90"
               >
-                Fur Bilaash ↗
+                Free courses ↗
               </a>
               <Link
                 href="/baro"

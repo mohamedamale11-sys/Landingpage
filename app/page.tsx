@@ -40,10 +40,8 @@ export default async function Home(props: PageProps) {
 
   const page = await fetchLatestPage({ limit: 72, offset, lang: "so" });
   const cleaned = cleanWireItems(page.items);
-  const somaliOnly = cleaned.filter(isSomaliWireItem);
-  const unfiltered = somaliOnly.length >= 8 ? somaliOnly : cleaned;
-
-  let items = unfiltered;
+  // Enforce Somali-only output on the website (never fall back to English).
+  let items = cleaned.filter(isSomaliWireItem);
   if (q) {
     const nq = normalize(q);
     items = items.filter((x) => {
@@ -64,7 +62,7 @@ export default async function Home(props: PageProps) {
   if (q) params.set("q", q);
   if (offset) params.set("offset", String(offset));
 
-  const updatedAt = unfiltered[0]?.published_at || hero?.published_at || "";
+  const updatedAt = items[0]?.published_at || hero?.published_at || "";
   const clearHref = "/";
 
   const prevOffset = offset > 0 ? Math.max(0, offset - page.limit) : null;
@@ -266,7 +264,7 @@ export default async function Home(props: PageProps) {
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgb(var(--accent)/0.22),transparent_58%),linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.01))]" />
                 <div className="relative">
                   <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/60">
-                    KOORSO BILAASH
+                    FREE COURSES
                   </div>
                   <div className="mx-headline mt-2 text-[22px] font-semibold leading-tight text-white">
                     Baro crypto af-Soomaali
@@ -301,7 +299,7 @@ export default async function Home(props: PageProps) {
                       rel="noopener noreferrer"
                       className="mx-mono rounded-full border mx-hairline bg-[rgb(var(--accent))] px-4 py-2 text-[12px] font-semibold text-black hover:opacity-90"
                     >
-                      Fur Bilaash ↗
+                      Free courses ↗
                     </a>
                     <Link
                       href="/baro"

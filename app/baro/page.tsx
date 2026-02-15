@@ -3,12 +3,14 @@ import Link from "next/link";
 import { COURSE_HREF } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Baro Crypto (Koorso Bilaash ah)",
+  title: "Baro Crypto (Free Courses)",
   description:
-    "Baro aasaaska crypto: wallet, exchanges, amni, DeFi, iyo sida loo fahmo suuqa. Koorso bilaash ah oo ka socota MxCrypto.",
+    "Baro aasaaska crypto: wallet, exchanges, amni, DeFi, iyo sida loo fahmo suuqa. Free courses oo ka socota MxCrypto.",
   keywords: [
     "baro crypto",
     "koorso crypto",
+    "free crypto course",
+    "free crypto courses",
     "bitcoin somali",
     "ethereum somali",
     "wallet",
@@ -18,9 +20,9 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: "/baro" },
   openGraph: {
-    title: "Baro Crypto (Koorso Bilaash ah)",
+    title: "Baro Crypto (Free Courses)",
     description:
-      "Baro aasaaska crypto: wallet, exchanges, amni, DeFi, iyo sida loo fahmo suuqa. Koorso bilaash ah.",
+      "Baro aasaaska crypto: wallet, exchanges, amni, DeFi, iyo sida loo fahmo suuqa. Free courses.",
     type: "website",
     images: [{ url: "/brand/mxcrypto-logo.png" }],
   },
@@ -35,7 +37,7 @@ export default function BaroPage() {
             BARO
           </div>
           <h1 className="mx-headline mt-3 text-[42px] font-semibold leading-[1.02] text-white md:text-[56px]">
-            Koorso Bilaash ah: Baro Crypto si sax ah
+            Free courses: Baro Crypto si sax ah
           </h1>
           <p className="mt-5 text-[18px] leading-relaxed text-white/75">
             Hadafkeenu waa in qof walba uu helo aqoon nadiif ah oo af-Soomaali ah:
@@ -50,7 +52,7 @@ export default function BaroPage() {
               rel="noopener noreferrer"
               className="mx-mono rounded-full border mx-hairline bg-[rgb(var(--accent))] px-5 py-2.5 text-[12px] font-semibold text-black hover:opacity-90"
             >
-              Fur Koorso Bilaash ↗
+              Free courses ↗
             </a>
             <Link
               href="/"
@@ -114,7 +116,7 @@ export default function BaroPage() {
               BILAABID DEGDEG AH
             </div>
             <ol className="mt-3 list-decimal space-y-2 pl-5 text-[14px] leading-relaxed text-white/70">
-              <li>Fur koorsada bilaashka ah.</li>
+              <li>Fur free courses-ka.</li>
               <li>Dhamee qaybaha aasaasiga ah (wallet + amni).</li>
               <li>Ku laabo wararka si aad u fahanto waxa dhacaya.</li>
             </ol>

@@ -191,10 +191,10 @@ export default async function NewsDetailPage(props: PageProps) {
 async function MoreNews(props: { currentUrl: string }) {
   const raw = await fetchLatest(36, "so");
   const cleaned = cleanWireItems(raw);
-  const somaliOnly = cleaned.filter(isSomaliWireItem);
-  const items = (somaliOnly.length >= 4 ? somaliOnly : cleaned).filter(
-    (x) => x.url !== props.currentUrl,
-  );
+  // Enforce Somali-only output on the website.
+  const items = cleaned
+    .filter(isSomaliWireItem)
+    .filter((x) => x.url !== props.currentUrl);
 
   const list = items.slice(0, 6);
 

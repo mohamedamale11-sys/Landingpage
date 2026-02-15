@@ -107,7 +107,7 @@ export function Masthead() {
               rel="noopener noreferrer"
               className="mx-mono hidden rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white lg:inline-flex"
             >
-              Koorso Bilaash
+              Free courses
             </a>
             <button
               type="button"

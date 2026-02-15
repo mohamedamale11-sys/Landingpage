@@ -46,7 +46,7 @@ export function SiteFooter() {
                 rel="noopener noreferrer"
                 className="mx-mono rounded-full border mx-hairline bg-[rgb(var(--accent))] px-4 py-2 text-[12px] font-semibold text-black hover:opacity-90"
               >
-                Koorso Bilaash ↗
+                Free courses ↗
               </a>
               <Link
                 href="/rss.xml"
