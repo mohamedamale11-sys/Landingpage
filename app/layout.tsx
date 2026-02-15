@@ -3,6 +3,7 @@ import { IBM_Plex_Mono, Newsreader, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import { Masthead } from "@/components/Masthead";
 import { Suspense } from "react";
+import { PriceBar } from "@/components/PriceBar";
 
 const fontHead = Newsreader({
   variable: "--font-head",
@@ -55,7 +56,7 @@ export default function RootLayout({
         <div className="min-h-screen">
           <Suspense
             fallback={
-              <div className="sticky top-0 z-50 border-b mx-hairline bg-[rgba(10,11,13,0.78)] backdrop-blur-xl">
+              <div className="sticky top-0 z-50 border-b mx-hairline bg-[rgba(0,0,0,0.82)] backdrop-blur-xl">
                 <div className="mx-container">
                   <div className="flex h-14 items-center">
                     <div className="mx-mono text-[12px] font-semibold tracking-widest text-white/65">
@@ -68,6 +69,7 @@ export default function RootLayout({
           >
             <Masthead />
           </Suspense>
+          <PriceBar />
           {children}
         </div>
       </body>

@@ -60,7 +60,7 @@ export function Masthead() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b mx-hairline bg-[rgba(10,11,13,0.78)] backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b mx-hairline bg-[rgba(0,0,0,0.82)] backdrop-blur-xl">
       <div className="mx-container">
         <div className="flex h-14 items-center justify-between gap-3">
           <Link href="/" className="flex items-center gap-3">
