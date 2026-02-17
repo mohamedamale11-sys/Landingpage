@@ -123,7 +123,7 @@ export default function RootLayout({
 }>) {
   const siteUrl = (process.env.SITE_URL || "https://www.mxcrypto.net").replace(/\/+$/, "");
   const gaMeasurementId =
-    process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-DX1W2X6TCR";
+    process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-62LCFXX3MC";
   const orgJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
