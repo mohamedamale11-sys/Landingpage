@@ -122,7 +122,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const siteUrl = (process.env.SITE_URL || "https://www.mxcrypto.net").replace(/\/+$/, "");
-  const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+  const gaMeasurementId =
+    process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-DX1W2X6TCR";
   const orgJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
