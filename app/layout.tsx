@@ -76,7 +76,7 @@ export const metadata: Metadata = {
     "altcoins",
   ],
   applicationName: "MxCrypto",
-  metadataBase: new URL(process.env.SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(process.env.SITE_URL || "https://www.mxcrypto.net"),
   alternates: { canonical: "/" },
   category: "news",
   creator: "MxCrypto",

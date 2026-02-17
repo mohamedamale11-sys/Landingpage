@@ -1,4 +1,6 @@
-const BACKEND = (process.env.NEWS_API_BASE || "http://127.0.0.1:8000").replace(
+const BACKEND = (
+  process.env.NEWS_API_BASE || "https://mxcrypto-backend-1.onrender.com"
+).replace(
   /\/+$/,
   "",
 );
