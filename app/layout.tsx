@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { PriceBar } from "@/components/PriceBar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { CoursePopup } from "@/components/CoursePopup";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 
 const fontHead = Newsreader({
   variable: "--font-head",
@@ -121,6 +122,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const siteUrl = (process.env.SITE_URL || "https://www.mxcrypto.net").replace(/\/+$/, "");
+  const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   const orgJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -146,6 +148,7 @@ export default function RootLayout({
       <body
         className={`${fontHead.variable} ${fontBody.variable} ${fontMono.variable} ${fontBrand.variable} mx-body antialiased`}
       >
+        <GoogleAnalytics measurementId={gaMeasurementId} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
