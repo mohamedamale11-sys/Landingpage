@@ -125,7 +125,7 @@ export default async function BitcoinNewsPage(props: PageProps) {
 
       {hero ? (
         <section className="mt-6">
-          <Link href={`/news/${encodeStoryID(hero.url)}`} className="group block">
+          <Link href={`/news/${encodeStoryID(hero.url)}`} scroll className="group block">
             <div className="relative aspect-[16/9] overflow-hidden rounded-[12px] bg-black">
               {hero.image_url ? (
                 // eslint-disable-next-line @next/next/no-img-element

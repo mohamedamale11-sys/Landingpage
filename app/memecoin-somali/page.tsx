@@ -152,7 +152,7 @@ export default async function MemecoinSomaliPage(props: PageProps) {
 
       {hero ? (
         <section className="mt-6">
-          <Link href={`/news/${encodeStoryID(hero.url)}`} className="group block">
+          <Link href={`/news/${encodeStoryID(hero.url)}`} scroll className="group block">
             <h2 className="mx-headline text-[34px] font-semibold leading-[1.06] text-white group-hover:underline md:text-[46px]">
               {hero.title}
             </h2>

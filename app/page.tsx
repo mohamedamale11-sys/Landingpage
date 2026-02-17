@@ -240,6 +240,7 @@ export default async function Home(props: PageProps) {
             {prevOffset !== null ? (
               <Link
                 href={hrefWith(params, { offset: prevOffset ? String(prevOffset) : null })}
+                scroll
                 className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-3 py-1.5 text-[11px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
               >
                 ← Cusub
@@ -251,6 +252,7 @@ export default async function Home(props: PageProps) {
                 <Link
                   key={p}
                   href={pageHref(p)}
+                  scroll
                   aria-current={active ? "page" : undefined}
                   className={[
                     "mx-mono rounded-full border px-3 py-1.5 text-[11px] font-semibold",
@@ -266,6 +268,7 @@ export default async function Home(props: PageProps) {
             {nextOffset !== null ? (
               <Link
                 href={hrefWith(params, { offset: String(nextOffset) })}
+                scroll
                 className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-3 py-1.5 text-[11px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
               >
                 Hore →
@@ -302,6 +305,7 @@ export default async function Home(props: PageProps) {
                         </div>
                         <Link
                           href={`/news/${encodeStoryID(it.url)}`}
+                          scroll
                           className="mt-1 block text-[15px] leading-[1.35] text-white/90 transition-colors hover:text-white"
                         >
                           <span className="mx-clamp-3">{it.title}</span>
@@ -342,6 +346,7 @@ export default async function Home(props: PageProps) {
                   {prevOffset !== null ? (
                     <Link
                       href={hrefWith(params, { offset: prevOffset ? String(prevOffset) : null })}
+                      scroll
                       className="mx-mono text-[10px] text-white/62 hover:text-white"
                     >
                       ← Cusub
@@ -350,6 +355,7 @@ export default async function Home(props: PageProps) {
                   {nextOffset !== null ? (
                     <Link
                       href={hrefWith(params, { offset: String(nextOffset) })}
+                      scroll
                       className="mx-mono text-[10px] text-white/62 hover:text-white"
                     >
                       Hore →
@@ -363,7 +369,7 @@ export default async function Home(props: PageProps) {
 
         <section className="order-1 lg:order-2 lg:px-6">
           {hero ? (
-            <Link href={`/news/${encodeStoryID(hero.url)}`} className="group block">
+            <Link href={`/news/${encodeStoryID(hero.url)}`} scroll className="group block">
               <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[10px] bg-black sm:aspect-[16/9] sm:rounded-none">
                 {hero.image_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -433,6 +439,7 @@ export default async function Home(props: PageProps) {
                 {prevOffset !== null ? (
                   <Link
                     href={hrefWith(params, { offset: prevOffset ? String(prevOffset) : null })}
+                    scroll
                     className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
                   >
                     ← Cusub
@@ -441,6 +448,7 @@ export default async function Home(props: PageProps) {
                 {nextOffset !== null ? (
                   <Link
                     href={hrefWith(params, { offset: String(nextOffset) })}
+                    scroll
                     className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
                   >
                     Hore →
@@ -550,6 +558,7 @@ export default async function Home(props: PageProps) {
               {prevOffset !== null ? (
                 <Link
                   href={hrefWith(params, { offset: prevOffset ? String(prevOffset) : null })}
+                  scroll
                   className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
                 >
                   ← Cusub
@@ -561,6 +570,7 @@ export default async function Home(props: PageProps) {
                   <Link
                     key={`bottom-${p}`}
                     href={pageHref(p)}
+                    scroll
                     aria-current={active ? "page" : undefined}
                     className={[
                       "mx-mono rounded-full border px-3 py-2 text-[11px] font-semibold",
@@ -576,6 +586,7 @@ export default async function Home(props: PageProps) {
               {nextOffset !== null ? (
                 <Link
                   href={hrefWith(params, { offset: String(nextOffset) })}
+                  scroll
                   className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
                 >
                   Hore →

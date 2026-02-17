@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { cleanWireItems, decodeStoryID, fetchLatest, fetchNewsItemByURL } from "@/lib/news";
 import { formatDateUTC, timeAgo } from "@/lib/time";
 import { StoryLink } from "@/components/StoryLink";
+import { ScrollResetOnMount } from "@/components/ScrollResetOnMount";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -113,6 +114,7 @@ export default async function NewsDetailPage(props: PageProps) {
 
   return (
     <main className="mx-container pt-5 pb-16">
+      <ScrollResetOnMount />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -198,6 +200,7 @@ export default async function NewsDetailPage(props: PageProps) {
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
               href="/"
+              scroll
               className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
             >
               Ku noqo Wararka

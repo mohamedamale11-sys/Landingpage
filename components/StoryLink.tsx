@@ -17,8 +17,9 @@ export function StoryLink(props: {
   return (
     <Link
       href={href}
+      scroll
       className={[
-        "group block transition-colors",
+        "group block rounded-[8px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--accent)/0.35)]",
         props.clean ? "" : "hover:bg-white/[0.03]",
       ].join(" ")}
     >
