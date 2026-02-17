@@ -40,12 +40,13 @@ export function StoryLink(props: {
             ].join(" ")}
           >
             {item.image_url ? (
-              // Use <img> to avoid Next image domain config for MVP.
-              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={item.image_url}
                 alt=""
-                className="absolute inset-0 h-full w-full object-cover"
+                width={96}
+                height={64}
+                sizes="96px"
+                className="h-full w-full object-cover"
                 loading="lazy"
                 decoding="async"
                 referrerPolicy="no-referrer"

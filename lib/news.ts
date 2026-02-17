@@ -289,7 +289,7 @@ export async function fetchLatestPage(props?: {
     u.searchParams.set("offset", String(offset));
     if (props?.lang) u.searchParams.set("lang", props.lang);
 
-    const res = await fetch(u.toString(), { cache: "no-store" });
+    const res = await fetch(u.toString(), { next: { revalidate: 30 } });
     if (!res.ok) {
       return { items: [], hasMore: false, nextOffset: null, offset, limit };
     }
@@ -320,7 +320,7 @@ export async function fetchNewsItemByURL(url: string, lang?: string): Promise<Wi
     u.searchParams.set("url", url);
     if (lang) u.searchParams.set("lang", lang);
 
-    const res = await fetch(u.toString(), { cache: "no-store" });
+    const res = await fetch(u.toString(), { next: { revalidate: 120 } });
     if (!res.ok) return null;
     const data = (await res.json()) as { ok: boolean; item?: WireItem };
     return data.item ?? null;

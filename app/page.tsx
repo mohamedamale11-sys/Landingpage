@@ -165,12 +165,46 @@ export default async function Home(props: PageProps) {
       name: it.title,
     })),
   };
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "Wararka crypto ma yihiin af-Soomaali?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Haa. MxCrypto wuxuu daabacaa wararka crypto oo Somali ah si akhristaha uu si fudud u fahmo.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Immisa jeer ayaad cusboonaysiisaa news-ka?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "News feed-ka waxaa si joogto ah loo cusboonaysiiyaa maalintii oo dhan, si aad u hesho wararka ugu dambeeyay.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Halkee ka helaa free courses crypto Somali?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Bogga Baro/Free courses ee MxCrypto waxaad ka heli kartaa casharro aasaasi ah oo crypto af-Soomaali ah.",
+        },
+      },
+    ],
+  };
 
   return (
     <main className="mx-container pt-4 pb-28 sm:pt-6 sm:pb-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
       <div
@@ -372,10 +406,12 @@ export default async function Home(props: PageProps) {
             <Link href={`/news/${encodeStoryID(hero.url)}`} scroll className="group block">
               <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[10px] bg-black sm:aspect-[16/9] sm:rounded-none">
                 {hero.image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={hero.image_url}
                     alt=""
+                    width={1600}
+                    height={900}
+                    sizes="(max-width: 1024px) 100vw, 720px"
                     className="absolute inset-0 h-full w-full object-cover"
                     loading="eager"
                     decoding="async"

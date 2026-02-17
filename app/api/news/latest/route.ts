@@ -20,7 +20,8 @@ export async function GET(req: Request) {
     const t = setTimeout(() => controller.abort(), timeoutMs);
     const res = await fetch(u.toString(), {
       headers: { accept: "application/json" },
-      cache: "no-store",
+      cache: "force-cache",
+      next: { revalidate: 20 },
       signal: controller.signal,
     });
     clearTimeout(t);
@@ -34,7 +35,7 @@ export async function GET(req: Request) {
         status: res.status,
         headers: {
           "content-type": res.headers.get("content-type") || "application/json",
-          "cache-control": "no-store, no-cache, must-revalidate",
+          "cache-control": "public, s-maxage=20, stale-while-revalidate=120",
         },
       });
     }
@@ -67,7 +68,7 @@ export async function GET(req: Request) {
       status: res.status,
       headers: {
         "content-type": "application/json",
-        "cache-control": "no-store, no-cache, must-revalidate",
+        "cache-control": "public, s-maxage=20, stale-while-revalidate=120",
       },
     });
   } catch {
@@ -77,7 +78,7 @@ export async function GET(req: Request) {
         status: 200,
         headers: {
           "content-type": "application/json",
-          "cache-control": "no-store, no-cache, must-revalidate",
+          "cache-control": "public, s-maxage=5, stale-while-revalidate=30",
         },
       },
     );

@@ -12,24 +12,28 @@ const fontHead = Newsreader({
   variable: "--font-head",
   subsets: ["latin"],
   weight: ["400", "600", "700"],
+  display: "swap",
 });
 
 const fontBody = Source_Sans_3({
   variable: "--font-body",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 const fontMono = IBM_Plex_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
+  display: "swap",
 });
 
 const fontBrand = Space_Grotesk({
   variable: "--font-brand",
   subsets: ["latin"],
   weight: ["600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -78,15 +82,28 @@ export const metadata: Metadata = {
   ],
   applicationName: "MxCrypto",
   metadataBase: new URL(process.env.SITE_URL || "https://www.mxcrypto.net"),
-  alternates: { canonical: "/" },
+  alternates: {
+    canonical: "/",
+    languages: {
+      so: "/",
+      "x-default": "/",
+    },
+  },
   category: "news",
   creator: "MxCrypto",
   publisher: "MxCrypto",
+  manifest: "/manifest.webmanifest",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
     title: "MxCrypto | Wararka Crypto Somali",
     description:
       "Wararka Bitcoin, Ethereum, iyo suuqa crypto ee af-Soomaali. Degdeg oo nadiif ah.",
     type: "website",
+    url: "/",
     siteName: "MxCrypto",
     locale: "so_SO",
     images: [{ url: "/brand/mxcrypto-logo.png" }],
@@ -97,11 +114,15 @@ export const metadata: Metadata = {
     description:
       "Wararka Bitcoin, Ethereum, iyo suuqa crypto ee af-Soomaali. Degdeg oo nadiif ah.",
     images: ["/brand/mxcrypto-logo.png"],
+    site: "@mxcrypto",
   },
   icons: {
     icon: "/icon.png",
     shortcut: "/icon.png",
     apple: "/apple-icon.png",
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
   },
   robots: {
     index: true,
@@ -113,6 +134,9 @@ export const metadata: Metadata = {
       "max-snippet": -1,
       "max-video-preview": -1,
     },
+  },
+  other: {
+    "theme-color": "#02050b",
   },
 };
 
@@ -126,10 +150,11 @@ export default function RootLayout({
     process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-62LCFXX3MC";
   const orgJsonLd = {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": "NewsMediaOrganization",
     name: "MxCrypto",
     url: siteUrl,
     logo: `${siteUrl}/brand/mxcrypto-logo.png`,
+    inLanguage: "so",
   };
   const siteJsonLd = {
     "@context": "https://schema.org",

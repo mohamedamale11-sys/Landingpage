@@ -155,12 +155,15 @@ export default async function NewsDetailPage(props: PageProps) {
           {item.image_url ? (
             <div className="mt-6">
               <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[14px] border mx-hairline bg-black">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={item.image_url}
                   alt=""
+                  width={1600}
+                  height={900}
+                  sizes="(max-width: 1024px) 100vw, 960px"
                   className="absolute inset-0 h-full w-full object-cover"
                   loading="eager"
+                  decoding="async"
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/75 to-transparent" />
