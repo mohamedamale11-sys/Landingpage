@@ -140,7 +140,7 @@ export default async function Home(props: PageProps) {
     currentPage,
     totalPages ?? (nextOffset !== null ? currentPage + 1 : currentPage),
   );
-  const showPagination = prevOffset !== null || nextOffset !== null || currentPage > 1;
+  const showPagination = prevOffset !== null || nextOffset !== null;
   const pageHref = (pageNum: number) =>
     hrefWith(params, {
       offset: pageNum <= 1 ? null : String((pageNum - 1) * page.limit),
@@ -222,7 +222,7 @@ export default async function Home(props: PageProps) {
       </div>
 
       {showPagination ? (
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-b mx-hairline pb-4">
+        <div className="mt-4 hidden flex-wrap items-center justify-between gap-3 border-b mx-hairline pb-4 sm:flex">
           <div className="mx-mono flex items-center gap-2 text-[11px] text-white/50">
             <span>History</span>
             <span className="text-white/25">•</span>
@@ -427,6 +427,27 @@ export default async function Home(props: PageProps) {
                 </div>
               ))}
             </div>
+
+            {showPagination ? (
+              <div className="mt-5 flex flex-wrap items-center justify-center gap-2 border-t mx-hairline pt-4">
+                {prevOffset !== null ? (
+                  <Link
+                    href={hrefWith(params, { offset: prevOffset ? String(prevOffset) : null })}
+                    className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
+                  >
+                    ← Cusub
+                  </Link>
+                ) : null}
+                {nextOffset !== null ? (
+                  <Link
+                    href={hrefWith(params, { offset: String(nextOffset) })}
+                    className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
+                  >
+                    Hore →
+                  </Link>
+                ) : null}
+              </div>
+            ) : null}
           </div>
 
           <div className="mt-8 lg:hidden">
@@ -502,7 +523,7 @@ export default async function Home(props: PageProps) {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t mx-hairline pt-4">
+          <div className="mt-8 hidden flex-wrap items-center justify-between gap-3 border-t mx-hairline pt-4 lg:flex">
             <div className="mx-mono flex items-center gap-2 text-[11px] text-white/45">
               {totalPages ? (
                 <span>

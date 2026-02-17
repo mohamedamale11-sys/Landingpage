@@ -195,16 +195,6 @@ export default async function NewsDetailPage(props: PageProps) {
             </div>
           )}
 
-          <div className="mt-6 mx-panel p-4">
-            <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
-              XUSUUSIN
-            </div>
-            <div className="mt-2 text-[13px] leading-relaxed text-white/70">
-              Macluumaadkan waa waxbarasho. Ma aha talo maaliyadeed. Ka hor go&apos;aan
-              kasta, samee cilmi-baaris oo xaqiiji xogta.
-            </div>
-          </div>
-
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
               href="/"
