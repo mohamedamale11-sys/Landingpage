@@ -11,6 +11,7 @@ type PageProps = {
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { id } = await props.params;
+  const siteBase = (process.env.SITE_URL || "http://localhost:3000").replace(/\/+$/, "");
   let url = "";
   try {
     url = decodeStoryID(id);
@@ -22,15 +23,25 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
   const title = item.title || "Warar";
   const description = item.summary || "Wararka MxCrypto";
+  const canonical = `/news/${id}`;
   return {
     title,
     description,
-    alternates: { canonical: `/news/${id}` },
+    alternates: { canonical },
+    authors: [{ name: "MxCrypto" }],
+    publisher: "MxCrypto",
     openGraph: {
       title,
       description,
       type: "article",
+      url: `${siteBase}${canonical}`,
       images: item.image_url ? [{ url: item.image_url }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: item.image_url ? [item.image_url] : undefined,
     },
   };
 }
@@ -48,7 +59,8 @@ export default async function NewsDetailPage(props: PageProps) {
   if (!item) notFound();
 
   const published = item.published_at;
-  const canonical = `/news/${id}`;
+  const siteBase = (process.env.SITE_URL || "http://localhost:3000").replace(/\/+$/, "");
+  const canonical = `${siteBase}/news/${id}`;
   const sentimentRaw = (item.sentiment || "").toLowerCase().trim();
   const sentiment =
     sentimentRaw.includes("fiican")
@@ -80,12 +92,34 @@ export default async function NewsDetailPage(props: PageProps) {
     image: item.image_url ? [item.image_url] : undefined,
     description: item.summary || undefined,
   };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Warar",
+        item: `${siteBase}/`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: item.title,
+        item: canonical,
+      },
+    ],
+  };
 
   return (
     <main className="mx-container pt-5 pb-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px] lg:gap-10">

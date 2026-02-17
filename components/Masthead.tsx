@@ -43,7 +43,13 @@ export function Masthead() {
 
   const onData = pathname.startsWith("/data");
   const onBaro = pathname === "/baro";
-  const onNews = !onData && !onBaro;
+  const onBitcoin =
+    pathname === "/wararka-bitcoin" ||
+    pathname === "/wararka-ethereum" ||
+    pathname === "/qiimaha-bitcoin-maanta";
+  const onCrypto = pathname === "/crypto-somali";
+  const onMeme = pathname === "/memecoin-somali";
+  const onNews = !onData && !onBaro && !onBitcoin && !onCrypto && !onMeme;
 
   const q = sp.get("q") || "";
 
@@ -87,6 +93,36 @@ export function Masthead() {
               ].join(" ")}
             >
               Xog
+            </Link>
+
+            <Link
+              href="/crypto-somali"
+              className={[
+                "mx-mono text-[12px] font-semibold tracking-widest transition",
+                onCrypto ? "text-white" : "text-white/55 hover:text-white/85",
+              ].join(" ")}
+            >
+              Crypto
+            </Link>
+
+            <Link
+              href="/wararka-bitcoin"
+              className={[
+                "mx-mono text-[12px] font-semibold tracking-widest transition",
+                onBitcoin ? "text-white" : "text-white/55 hover:text-white/85",
+              ].join(" ")}
+            >
+              Bitcoin
+            </Link>
+
+            <Link
+              href="/memecoin-somali"
+              className={[
+                "mx-mono text-[12px] font-semibold tracking-widest transition",
+                onMeme ? "text-white" : "text-white/55 hover:text-white/85",
+              ].join(" ")}
+            >
+              Meme
             </Link>
 
             <Link
@@ -146,6 +182,39 @@ export function Masthead() {
                 ].join(" ")}
               >
                 Xog
+              </Link>
+              <Link
+                href="/crypto-somali"
+                className={[
+                  "shrink-0 border-b-2 pb-2 transition",
+                  onCrypto
+                    ? "border-white/70 text-white"
+                    : "border-transparent text-white/55 hover:text-white/85",
+                ].join(" ")}
+              >
+                Crypto
+              </Link>
+              <Link
+                href="/wararka-bitcoin"
+                className={[
+                  "shrink-0 border-b-2 pb-2 transition",
+                  onBitcoin
+                    ? "border-white/70 text-white"
+                    : "border-transparent text-white/55 hover:text-white/85",
+                ].join(" ")}
+              >
+                Bitcoin
+              </Link>
+              <Link
+                href="/memecoin-somali"
+                className={[
+                  "shrink-0 border-b-2 pb-2 transition",
+                  onMeme
+                    ? "border-white/70 text-white"
+                    : "border-transparent text-white/55 hover:text-white/85",
+                ].join(" ")}
+              >
+                Meme
               </Link>
               <Link
                 href="/baro"

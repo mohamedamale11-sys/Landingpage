@@ -2,32 +2,42 @@ import Link from "next/link";
 import type { WireItem } from "@/lib/news";
 import { encodeStoryID } from "@/lib/news";
 import { timeAgo } from "@/lib/time";
+import { getSentimentMeta } from "@/lib/sentiment";
 
 export function StoryLink(props: {
   item: WireItem;
   dense?: boolean;
   showThumb?: boolean;
+  clean?: boolean;
 }) {
   const { item } = props;
   const href = `/news/${encodeStoryID(item.url)}`;
-  const sentimentRaw = (item.sentiment || "").toLowerCase().trim();
-  const sentiment =
-    sentimentRaw.includes("fiican")
-      ? { label: "War fiican", className: "text-emerald-400/90" }
-      : sentimentRaw.includes("xun")
-        ? { label: "War xun", className: "text-red-400/90" }
-        : sentimentRaw.includes("dhexdhexaad")
-          ? { label: "Dhexdhexaad", className: "text-white/55" }
-          : null;
+  const sentiment = getSentimentMeta(item.sentiment);
 
   return (
     <Link
       href={href}
-      className="group block transition hover:bg-white/[0.03]"
+      className={[
+        "group block transition-colors",
+        props.clean ? "" : "hover:bg-white/[0.03]",
+      ].join(" ")}
     >
-      <div className="flex items-start gap-4 px-4 py-3">
+      <div
+        className={[
+          "flex items-start gap-4",
+          props.clean ? "px-0 py-4" : "px-4 py-3",
+          props.showThumb ? "min-h-[108px]" : "",
+        ].join(" ")}
+      >
         {props.showThumb ? (
-          <div className="relative mt-1 h-[64px] w-[96px] shrink-0 overflow-hidden rounded-xl border mx-hairline bg-white/[0.03]">
+          <div
+            className={[
+              "relative mt-1 h-[64px] w-[96px] shrink-0 overflow-hidden",
+              props.clean
+                ? "rounded-[8px] bg-white/[0.02]"
+                : "rounded-xl border mx-hairline bg-white/[0.03]",
+            ].join(" ")}
+          >
             {item.image_url ? (
               // Use <img> to avoid Next image domain config for MVP.
               // eslint-disable-next-line @next/next/no-img-element
@@ -36,6 +46,7 @@ export function StoryLink(props: {
                 alt=""
                 className="absolute inset-0 h-full w-full object-cover"
                 loading="lazy"
+                decoding="async"
                 referrerPolicy="no-referrer"
               />
             ) : (
@@ -47,7 +58,8 @@ export function StoryLink(props: {
         <div className="min-w-0 flex-1">
           <div
             className={[
-              "mx-headline font-semibold leading-snug text-white/95 group-hover:underline",
+              "mx-headline font-semibold leading-snug text-white/95",
+              props.clean ? "group-hover:text-white" : "group-hover:underline",
               props.dense ? "text-[16px]" : "text-[18px]",
             ].join(" ")}
           >

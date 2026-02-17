@@ -41,10 +41,29 @@ export const metadata: Metadata = {
   keywords: [
     "wararka crypto",
     "wararka crypto somali",
+    "wararka bitcoin",
+    "wararka ethereum",
+    "wararka memecoin",
+    "memecoin somali",
     "crypto somali",
+    "crypto af soomaali",
+    "crypto news somalia",
+    "suuqa crypto somalia",
     "bitcoin somali",
     "ethereum somali",
+    "dogecoin somali",
+    "shiba inu somali",
+    "pepe coin somali",
+    "bonk somali",
+    "altcoin somali",
     "qiimaha bitcoin maanta",
+    "qiimaha ethereum maanta",
+    "bitcoin price today somali",
+    "ethereum price today somali",
+    "btc price somali",
+    "eth price somali",
+    "bitcoin news somali",
+    "ethereum news somali",
     "qiimaha crypto maanta",
     "qiimaha bitcoin",
     "qiimaha ethereum",
@@ -59,11 +78,16 @@ export const metadata: Metadata = {
   applicationName: "MxCrypto",
   metadataBase: new URL(process.env.SITE_URL || "http://localhost:3000"),
   alternates: { canonical: "/" },
+  category: "news",
+  creator: "MxCrypto",
+  publisher: "MxCrypto",
   openGraph: {
     title: "MxCrypto | Wararka Crypto Somali",
     description:
       "Wararka Bitcoin, Ethereum, iyo suuqa crypto ee af-Soomaali. Degdeg oo nadiif ah.",
     type: "website",
+    siteName: "MxCrypto",
+    locale: "so_SO",
     images: [{ url: "/brand/mxcrypto-logo.png" }],
   },
   twitter: {
@@ -74,12 +98,20 @@ export const metadata: Metadata = {
     images: ["/brand/mxcrypto-logo.png"],
   },
   icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/apple-icon.png",
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
 };
 
@@ -88,11 +120,40 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const siteUrl = (process.env.SITE_URL || "http://localhost:3000").replace(/\/+$/, "");
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "MxCrypto",
+    url: siteUrl,
+    logo: `${siteUrl}/brand/mxcrypto-logo.png`,
+  };
+  const siteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "MxCrypto",
+    url: siteUrl,
+    inLanguage: "so",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${siteUrl}/?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+
   return (
     <html lang="so">
       <body
         className={`${fontHead.variable} ${fontBody.variable} ${fontMono.variable} ${fontBrand.variable} mx-body antialiased`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
+        />
         <div className="min-h-screen">
           <Suspense
             fallback={

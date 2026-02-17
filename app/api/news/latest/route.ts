@@ -16,8 +16,8 @@ export async function GET(req: Request) {
     const t = setTimeout(() => controller.abort(), timeoutMs);
     const res = await fetch(u.toString(), {
       headers: { accept: "application/json" },
-      // Keep it fast; the page fetch uses revalidate anyway.
-      cache: "no-store",
+      cache: "force-cache",
+      next: { revalidate: 30 },
       signal: controller.signal,
     });
     clearTimeout(t);
@@ -26,12 +26,19 @@ export async function GET(req: Request) {
       status: res.status,
       headers: {
         "content-type": res.headers.get("content-type") || "application/json",
+        "cache-control": "public, s-maxage=30, stale-while-revalidate=120",
       },
     });
   } catch {
     return new Response(
       JSON.stringify({ ok: false, items: [], error: "backend_unreachable" }),
-      { status: 200, headers: { "content-type": "application/json" } },
+      {
+        status: 200,
+        headers: {
+          "content-type": "application/json",
+          "cache-control": "public, s-maxage=5, stale-while-revalidate=30",
+        },
+      },
     );
   }
 }

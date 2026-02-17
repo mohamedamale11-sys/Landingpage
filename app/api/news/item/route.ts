@@ -24,7 +24,8 @@ export async function GET(req: Request) {
     const t = setTimeout(() => controller.abort(), timeoutMs);
     const res = await fetch(u.toString(), {
       headers: { accept: "application/json" },
-      cache: "no-store",
+      cache: "force-cache",
+      next: { revalidate: 120 },
       signal: controller.signal,
     });
     clearTimeout(t);
@@ -33,12 +34,19 @@ export async function GET(req: Request) {
       status: res.status,
       headers: {
         "content-type": res.headers.get("content-type") || "application/json",
+        "cache-control": "public, s-maxage=120, stale-while-revalidate=300",
       },
     });
   } catch {
     return new Response(
       JSON.stringify({ ok: false, error: "backend_unreachable" }),
-      { status: 502, headers: { "content-type": "application/json" } },
+      {
+        status: 502,
+        headers: {
+          "content-type": "application/json",
+          "cache-control": "public, s-maxage=5, stale-while-revalidate=30",
+        },
+      },
     );
   }
 }

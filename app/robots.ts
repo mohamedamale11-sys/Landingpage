@@ -6,8 +6,13 @@ export default function robots(): MetadataRoute.Robots {
       ? process.env.SITE_URL.replace(/\/+$/, "")
       : "";
   return {
-    rules: [{ userAgent: "*", allow: "/" }],
-    sitemap: base ? `${base}/sitemap.xml` : "/sitemap.xml",
+    rules: [
+      { userAgent: "*", allow: "/", disallow: ["/api/", "/_next/"] },
+      { userAgent: "GPTBot", allow: "/" },
+    ],
+    sitemap: base
+      ? [`${base}/sitemap.xml`, `${base}/news-sitemap.xml`]
+      : ["/sitemap.xml", "/news-sitemap.xml"],
+    host: base || undefined,
   };
 }
-

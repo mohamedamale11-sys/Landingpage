@@ -1,10 +1,20 @@
 import type { MetadataRoute } from "next";
-import { cleanWireItems, fetchLatest, encodeStoryID } from "@/lib/news";
+import { cleanWireItems, encodeStoryID, fetchLatestPage } from "@/lib/news";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  let items: Awaited<ReturnType<typeof fetchLatest>> = [];
+  let items: Awaited<ReturnType<typeof fetchLatestPage>>["items"] = [];
   try {
-    items = cleanWireItems(await fetchLatest(120, "so"));
+    const rows: Awaited<ReturnType<typeof fetchLatestPage>>["items"] = [];
+    let offset = 0;
+    const limit = 200;
+    for (let i = 0; i < 4; i++) {
+      const page = await fetchLatestPage({ limit, offset, lang: "so" });
+      if (!page.items.length) break;
+      rows.push(...page.items);
+      if (!page.hasMore || page.nextOffset === null) break;
+      offset = page.nextOffset;
+    }
+    items = cleanWireItems(rows);
   } catch {
     // During `next build`, the backend might not be running.
     // Return a minimal sitemap so the build never fails.
@@ -39,6 +49,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
+      url: url("/qiimaha-bitcoin-maanta"),
+      lastModified: now,
+      changeFrequency: "hourly",
+      priority: 0.9,
+    },
+    {
+      url: url("/wararka-bitcoin"),
+      lastModified: now,
+      changeFrequency: "hourly",
+      priority: 0.88,
+    },
+    {
+      url: url("/wararka-ethereum"),
+      lastModified: now,
+      changeFrequency: "hourly",
+      priority: 0.86,
+    },
+    {
+      url: url("/crypto-somali"),
+      lastModified: now,
+      changeFrequency: "hourly",
+      priority: 0.87,
+    },
+    {
+      url: url("/memecoin-somali"),
+      lastModified: now,
+      changeFrequency: "hourly",
+      priority: 0.84,
+    },
+    {
       url: url("/ku-saabsan"),
       lastModified: now,
       changeFrequency: "monthly",
@@ -64,7 +104,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  for (const it of items.slice(0, 100)) {
+  for (const it of items.slice(0, 600)) {
     const id = encodeStoryID(it.url);
     out.push({
       url: url(`/news/${id}`),

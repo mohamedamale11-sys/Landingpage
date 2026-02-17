@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   description:
     "Xogta suuqa crypto: market cap, volume, BTC dominance, DeFi TVL, stablecoins, iyo Bitcoin ETFs.",
   keywords: [
+    "qiimaha bitcoin maanta",
+    "qiimaha ethereum maanta",
+    "crypto price somali",
+    "wararka bitcoin",
+    "wararka ethereum",
     "xogta crypto",
     "data crypto somali",
     "bitcoin etf",
@@ -141,8 +146,35 @@ export default async function DataPage() {
     .sort((a, b) => (parseNum(b.aum_usd) || 0) - (parseNum(a.aum_usd) || 0))
     .slice(0, 8);
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "Qiimaha Bitcoin maanta xaggee laga helaa?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Bogga data-ga iyo bogga Qiimaha Bitcoin Maanta ayaa kuu soo bandhigaya qiimaha live ee BTC.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "BTC dominance maxay ka dhigan tahay?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "BTC dominance waa boqolkiiba market cap-ka crypto ee uu Bitcoin keliya ka hayo.",
+        },
+      },
+    ],
+  };
+
   return (
     <main className="mx-container pt-6 pb-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <div className="border-b mx-hairline pb-4">
         <div className="mx-mono text-[12px] font-semibold tracking-widest text-white/60">
           XOGTA SUUQA
@@ -153,6 +185,38 @@ export default async function DataPage() {
         <div className="mt-3 max-w-[84ch] text-[15px] leading-relaxed text-white/65">
           Boggan wuxuu kuu soo koobayaa xogta ugu muhiimsan ee crypto: market cap, volume,
           BTC dominance, DeFi TVL, stablecoins, iyo (haddii la heli karo) Bitcoin ETFs.
+        </div>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <Link
+            href="/qiimaha-bitcoin-maanta"
+            className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/75 hover:bg-white/[0.06] hover:text-white"
+          >
+            Qiimaha Bitcoin Maanta
+          </Link>
+          <Link
+            href="/wararka-bitcoin"
+            className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/75 hover:bg-white/[0.06] hover:text-white"
+          >
+            Wararka Bitcoin
+          </Link>
+          <Link
+            href="/wararka-ethereum"
+            className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/75 hover:bg-white/[0.06] hover:text-white"
+          >
+            Wararka Ethereum
+          </Link>
+          <Link
+            href="/crypto-somali"
+            className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/75 hover:bg-white/[0.06] hover:text-white"
+          >
+            Crypto Somali
+          </Link>
+          <Link
+            href="/memecoin-somali"
+            className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/75 hover:bg-white/[0.06] hover:text-white"
+          >
+            Memecoin Somali
+          </Link>
         </div>
       </div>
 
@@ -419,4 +483,3 @@ export default async function DataPage() {
     </main>
   );
 }
-

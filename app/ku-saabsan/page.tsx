@@ -1,10 +1,25 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Ku Saabsan",
   description:
     "MxCrypto waa warar crypto oo af-Soomaali ah: degdeg, kooban, oo la fahmi karo.",
+  keywords: [
+    "mxcrypto",
+    "wararka crypto somali",
+    "bitcoin somali",
+    "ethereum somali",
+    "qiimaha bitcoin maanta",
+  ],
   alternates: { canonical: "/ku-saabsan" },
+  openGraph: {
+    title: "Ku Saabsan MxCrypto",
+    description:
+      "MxCrypto waa warar crypto oo af-Soomaali ah: degdeg, kooban, oo la fahmi karo.",
+    type: "website",
+    images: [{ url: "/brand/mxcrypto-logo.png" }],
+  },
 };
 
 export default function AboutPage() {
@@ -32,6 +47,39 @@ export default function AboutPage() {
           MxCrypto ma bixiyo talo maaliyadeed. Ka hor inta aanad go&apos;aan maalgashi
           gaarin, xaqiiji xogta oo samee cilmi-baaris.
         </p>
+      </div>
+
+      <div className="mt-8 flex flex-wrap items-center gap-2">
+        <Link
+          href="/qiimaha-bitcoin-maanta"
+          className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/75 hover:bg-white/[0.06] hover:text-white"
+        >
+          Qiimaha Bitcoin Maanta
+        </Link>
+        <Link
+          href="/wararka-bitcoin"
+          className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/75 hover:bg-white/[0.06] hover:text-white"
+        >
+          Wararka Bitcoin
+        </Link>
+        <Link
+          href="/wararka-ethereum"
+          className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/75 hover:bg-white/[0.06] hover:text-white"
+        >
+          Wararka Ethereum
+        </Link>
+        <Link
+          href="/crypto-somali"
+          className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/75 hover:bg-white/[0.06] hover:text-white"
+        >
+          Crypto Somali
+        </Link>
+        <Link
+          href="/memecoin-somali"
+          className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/75 hover:bg-white/[0.06] hover:text-white"
+        >
+          Memecoin Somali
+        </Link>
       </div>
     </main>
   );

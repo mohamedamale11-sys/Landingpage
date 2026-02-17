@@ -1,9 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { FearGreedCard } from "@/components/FearGreedCard";
 import { StoryLink } from "@/components/StoryLink";
 import { cleanWireItems, encodeStoryID, fetchLatestPage } from "@/lib/news";
 import { timeAgo } from "@/lib/time";
-import { COURSE_HREF } from "@/lib/constants";
+import { COURSE_HREF, EXCHANGE_PARTNERS } from "@/lib/constants";
+import { getSentimentMeta } from "@/lib/sentiment";
 
 type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -15,6 +16,26 @@ function firstStr(v: string | string[] | undefined): string {
 
 function normalize(s: string) {
   return s.toLowerCase();
+}
+
+function formatTimelineStamp(value?: string) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const day = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+  }).format(date);
+  const clock = new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  })
+    .format(date)
+    .toLowerCase();
+
+  return `${day}, ${clock}`;
 }
 
 function hrefWith(params: URLSearchParams, patch: Record<string, string | null>) {
@@ -31,14 +52,55 @@ function hrefWith(params: URLSearchParams, patch: Record<string, string | null>)
   return qs ? `/?${qs}` : "/";
 }
 
+function buildPageWindow(currentPage: number, totalPages: number) {
+  if (totalPages <= 0) return [] as number[];
+  const start = Math.max(1, currentPage - 2);
+  const end = Math.min(totalPages, currentPage + 2);
+  const out: number[] = [];
+  for (let p = start; p <= end; p += 1) out.push(p);
+  return out;
+}
+
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const sp = (await props.searchParams) ?? {};
+  const q = firstStr(sp.q).trim();
+  const offsetRaw = Number.parseInt(firstStr(sp.offset), 10);
+  const offset = Number.isFinite(offsetRaw) && offsetRaw > 0 ? offsetRaw : 0;
+
+  const params = new URLSearchParams();
+  if (q) params.set("q", q);
+  if (offset > 0 && !q) params.set("offset", String(offset));
+  const qs = params.toString();
+  const canonical = qs ? `/?${qs}` : "/";
+
+  return {
+    title: q ? `Raadi: ${q}` : "Wararka Crypto Somali",
+    description:
+      "Wararka Bitcoin, Ethereum, iyo crypto ee af-Soomaali. News cusub oo la kala hormariyey waqtiga daabacaadda.",
+    alternates: { canonical },
+    robots: q ? { index: false, follow: true } : { index: true, follow: true },
+    openGraph: {
+      title: q ? `Raadi: ${q} | MxCrypto` : "Wararka Crypto Somali | MxCrypto",
+      description:
+        "Wararka Bitcoin, Ethereum, iyo crypto ee af-Soomaali. News cusub oo la kala hormariyey waqtiga daabacaadda.",
+      type: "website",
+      images: [{ url: "/brand/mxcrypto-logo.png" }],
+    },
+  };
+}
+
 export default async function Home(props: PageProps) {
+  const pageSize = 40; // hero + center + scrollable left timeline
+  const centerCountDesktop = 12;
+  const centerCountMobile = 10;
+
   const sp = (await props.searchParams) ?? {};
 
   const q = firstStr(sp.q).trim();
   const offsetRaw = Number.parseInt(firstStr(sp.offset), 10);
   const offset = Number.isFinite(offsetRaw) && offsetRaw > 0 ? offsetRaw : 0;
 
-  const page = await fetchLatestPage({ limit: 72, offset, lang: "so" });
+  const page = await fetchLatestPage({ limit: pageSize, offset, lang: "so" });
   const cleaned = cleanWireItems(page.items);
   // Backend enforces Somali; frontend keeps only a lightweight “broken script” guard via cleanWireItems.
   let items = cleaned;
@@ -52,11 +114,12 @@ export default async function Home(props: PageProps) {
 
   // Keep the newest item at the very top. (Desktop can still show imagery; mobile is text-first.)
   const hero = items[0] ?? null;
+  const heroSentiment = getSentimentMeta(hero?.sentiment);
   const rest = items.slice(1);
 
-  const left = rest.slice(0, 10);
-  const desktopStream = rest.slice(10, 28);
-  const mobileStream = rest.slice(0, 24);
+  const desktopStream = rest.slice(0, centerCountDesktop);
+  const leftTimeline = rest.slice(centerCountDesktop);
+  const mobileStream = rest.slice(0, centerCountMobile);
 
   const params = new URLSearchParams();
   if (q) params.set("q", q);
@@ -68,11 +131,48 @@ export default async function Home(props: PageProps) {
   const prevOffset = offset > 0 ? Math.max(0, offset - page.limit) : null;
   const nextOffset =
     page.hasMore && typeof page.nextOffset === "number" ? page.nextOffset : null;
+  const currentPage = Math.floor(offset / page.limit) + 1;
+  const totalPages =
+    typeof page.total === "number" && page.total > 0
+      ? Math.max(1, Math.ceil(page.total / page.limit))
+      : null;
+  const pageWindow = buildPageWindow(
+    currentPage,
+    totalPages ?? (nextOffset !== null ? currentPage + 1 : currentPage),
+  );
+  const showPagination = prevOffset !== null || nextOffset !== null || currentPage > 1;
+  const pageHref = (pageNum: number) =>
+    hrefWith(params, {
+      offset: pageNum <= 1 ? null : String((pageNum - 1) * page.limit),
+    });
 
   const showMetaOnMobile = Boolean(q);
+  const siteBase =
+    process.env.SITE_URL && process.env.SITE_URL.trim() !== ""
+      ? process.env.SITE_URL.replace(/\/+$/, "")
+      : "";
+  const abs = (p: string) => (siteBase ? `${siteBase}${p}` : p);
+  const itemListJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Wararka crypto ee ugu dambeeyay",
+    itemListOrder: "https://schema.org/ItemListOrderDescending",
+    numberOfItems: Math.min(items.length, 24),
+    itemListElement: items.slice(0, 24).map((it, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      url: abs(`/news/${encodeStoryID(it.url)}`),
+      name: it.title,
+    })),
+  };
 
   return (
-    <main className="mx-container pt-4 pb-16 sm:pt-6">
+    <main className="mx-container pt-4 pb-28 sm:pt-6 sm:pb-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+      />
+
       <div
         className={[
           "border-b mx-hairline pb-4",
@@ -90,10 +190,6 @@ export default async function Home(props: PageProps) {
           <span>
             {updatedAt ? `La cusbooneysiiyay ${timeAgo(updatedAt)}` : "Toos"}
           </span>
-          <span className="text-white/25">•</span>
-          <Link href="/rss.xml" className="text-white/55 hover:text-white/85">
-            RSS
-          </Link>
           {page.total && !q ? (
             <>
               <span className="text-white/25">•</span>
@@ -125,34 +221,150 @@ export default async function Home(props: PageProps) {
         ) : null}
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-10 sm:mt-6 lg:grid-cols-[320px_minmax(0,1fr)_320px]">
-        <aside className="order-2 hidden lg:block lg:order-1 lg:pr-6 lg:border-r mx-hairline">
-          <div className="flex items-center justify-between">
-            <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
-              UGU DAMBEEYAY
-            </div>
+      {showPagination ? (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-b mx-hairline pb-4">
+          <div className="mx-mono flex items-center gap-2 text-[11px] text-white/50">
+            <span>History</span>
+            <span className="text-white/25">•</span>
+            <span>
+              Bogga <span className="text-white/70">{currentPage}</span>
+              {totalPages ? (
+                <>
+                  {" "}
+                  / <span className="text-white/70">{totalPages}</span>
+                </>
+              ) : null}
+            </span>
           </div>
-          <div className="mt-3 divide-y mx-hairline">
-            {left.length ? (
-              left.map((it) => (
-                <div key={it.id || it.url}>
-                  <StoryLink item={it} dense />
-                </div>
-              ))
-            ) : (
-              <div className="py-10">
-                <div className="mx-mono text-[12px] text-white/55">
-                  Warar lama helin.
+          <div className="flex flex-wrap items-center gap-1.5">
+            {prevOffset !== null ? (
+              <Link
+                href={hrefWith(params, { offset: prevOffset ? String(prevOffset) : null })}
+                className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-3 py-1.5 text-[11px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
+              >
+                ← Cusub
+              </Link>
+            ) : null}
+            {pageWindow.map((p) => {
+              const active = p === currentPage;
+              return (
+                <Link
+                  key={p}
+                  href={pageHref(p)}
+                  aria-current={active ? "page" : undefined}
+                  className={[
+                    "mx-mono rounded-full border px-3 py-1.5 text-[11px] font-semibold",
+                    active
+                      ? "border-[rgb(var(--accent))] bg-[rgb(var(--accent))/0.17] text-[rgb(var(--accent))]"
+                      : "mx-hairline bg-white/[0.02] text-white/65 hover:bg-white/[0.06] hover:text-white",
+                  ].join(" ")}
+                >
+                  {p}
+                </Link>
+              );
+            })}
+            {nextOffset !== null ? (
+              <Link
+                href={hrefWith(params, { offset: String(nextOffset) })}
+                className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-3 py-1.5 text-[11px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
+              >
+                Hore →
+              </Link>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      <div className="mt-4 grid grid-cols-1 gap-10 sm:mt-6 lg:grid-cols-[320px_minmax(0,1fr)_320px]">
+        <aside className="order-2 hidden lg:block lg:order-1 lg:pr-6">
+          <div className="lg:sticky lg:top-[116px]">
+            <div className="flex items-center justify-between">
+              <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
+                UGU DAMBEEYAY
+              </div>
+              <div className="mx-mono text-[10px] text-white/40">
+                {leftTimeline.length} qoraal
+              </div>
+            </div>
+
+            <div className="mt-3">
+              <ol className="max-h-[calc(100vh-280px)] overflow-y-auto pr-2 [scrollbar-color:rgba(255,255,255,0.28)_transparent] [scrollbar-width:thin]">
+                {leftTimeline.length ? (
+                  leftTimeline.map((it) => {
+                    const timelineSentiment = getSentimentMeta(it.sentiment);
+                    return (
+                    <li key={it.id || it.url} className="pr-3 pb-5 last:pb-0">
+                      <div className="relative pl-4">
+                        <span className="absolute left-0 top-[7px] h-[calc(100%-7px)] w-px bg-white/18" />
+                        <span className="absolute -left-[2px] top-[7px] h-[5px] w-[5px] rounded-full bg-[rgb(var(--accent))]" />
+                        <div className="mx-mono text-[11px] font-semibold text-[rgb(var(--accent))]">
+                          {formatTimelineStamp(it.published_at)}
+                        </div>
+                        <Link
+                          href={`/news/${encodeStoryID(it.url)}`}
+                          className="mt-1 block text-[15px] leading-[1.35] text-white/90 transition-colors hover:text-white"
+                        >
+                          <span className="mx-clamp-3">{it.title}</span>
+                        </Link>
+                        <div className="mx-mono mt-2 flex items-center gap-2 text-[10px] text-white/40">
+                          <span>{timeAgo(it.published_at)}</span>
+                          {timelineSentiment ? (
+                            <>
+                              <span className="text-white/25">•</span>
+                              <span
+                                className={["font-semibold", timelineSentiment.className].join(
+                                  " ",
+                                )}
+                              >
+                                {timelineSentiment.label}
+                              </span>
+                            </>
+                          ) : null}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                  })
+                ) : (
+                  <li className="px-4 py-8">
+                    <div className="mx-mono text-[12px] text-white/55">
+                      Warar hore lama helin.
+                    </div>
+                  </li>
+                )}
+              </ol>
+            </div>
+
+            {showPagination ? (
+              <div className="mt-4 flex items-center justify-between border-t mx-hairline pt-3">
+                <div className="mx-mono text-[10px] text-white/45">Wararkii hore</div>
+                <div className="flex items-center gap-2">
+                  {prevOffset !== null ? (
+                    <Link
+                      href={hrefWith(params, { offset: prevOffset ? String(prevOffset) : null })}
+                      className="mx-mono text-[10px] text-white/62 hover:text-white"
+                    >
+                      ← Cusub
+                    </Link>
+                  ) : null}
+                  {nextOffset !== null ? (
+                    <Link
+                      href={hrefWith(params, { offset: String(nextOffset) })}
+                      className="mx-mono text-[10px] text-white/62 hover:text-white"
+                    >
+                      Hore →
+                    </Link>
+                  ) : null}
                 </div>
               </div>
-            )}
+            ) : null}
           </div>
         </aside>
 
         <section className="order-1 lg:order-2 lg:px-6">
           {hero ? (
             <Link href={`/news/${encodeStoryID(hero.url)}`} className="group block">
-              <div className="relative hidden aspect-[16/9] w-full overflow-hidden rounded-[14px] border mx-hairline bg-black sm:block">
+              <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[10px] bg-black sm:aspect-[16/9] sm:rounded-none">
                 {hero.image_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -160,6 +372,8 @@ export default async function Home(props: PageProps) {
                     alt=""
                     className="absolute inset-0 h-full w-full object-cover"
                     loading="eager"
+                    decoding="async"
+                    fetchPriority="high"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
@@ -172,17 +386,24 @@ export default async function Home(props: PageProps) {
                 <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/60">
                   WARARKA UGU DAMBEEYAY
                 </div>
-                <h1 className="mx-headline mt-3 text-[44px] font-semibold leading-[1.02] text-white group-hover:underline sm:text-[50px] md:text-[60px]">
+                <h1 className="mx-headline mt-3 text-[36px] font-semibold leading-[1.05] text-white group-hover:underline sm:text-[50px] md:text-[60px]">
                   <span className="mx-clamp-3">{hero.title}</span>
                 </h1>
                 <div className="mx-mono mt-3 text-[12px] text-white/45">
                   {timeAgo(hero.published_at)}
                   {hero.reading_time ? ` • ${hero.reading_time}` : ""}
-                  {hero.sentiment ? ` • ${hero.sentiment}` : ""}
+                  {heroSentiment ? (
+                    <>
+                      <span className="text-white/25"> • </span>
+                      <span className={["font-semibold", heroSentiment.className].join(" ")}>
+                        {heroSentiment.label}
+                      </span>
+                    </>
+                  ) : null}
                 </div>
                 {hero.summary ? (
-                  <p className="mt-4 hidden text-[16px] leading-relaxed text-white/70 sm:block">
-                    <span className="mx-clamp-3">{hero.summary}</span>
+                  <p className="mt-3 text-[15px] leading-relaxed text-white/68 sm:mt-4 sm:text-[16px]">
+                    <span className="mx-clamp-2 sm:mx-clamp-3">{hero.summary}</span>
                   </p>
                 ) : null}
               </div>
@@ -199,11 +420,62 @@ export default async function Home(props: PageProps) {
                 WARAR
               </div>
             </div>
-            <div className="divide-y mx-hairline">
+            <div className="mt-2 space-y-1">
               {mobileStream.map((it) => (
                 <div key={it.id || it.url}>
-                  <StoryLink item={it} dense showThumb />
+                  <StoryLink item={it} dense showThumb clean />
                 </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-8 lg:hidden">
+            <div className="flex items-center justify-between border-b mx-hairline pb-3">
+              <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
+                EXCHANGES
+              </div>
+              <div className="mx-mono text-[10px] text-white/45">Links</div>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {EXCHANGE_PARTNERS.map((x) => (
+                <a
+                  key={x.name}
+                  href={x.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-[12px] border mx-hairline bg-white/[0.02] px-3 py-3 transition-colors hover:bg-white/[0.06]"
+                >
+                  <div className="mx-mono text-[10px] font-semibold tracking-widest text-white/45">
+                    EXCHANGE
+                  </div>
+                  <div className="mt-1 text-[15px] font-semibold text-white">{x.name}</div>
+                  <div className="mt-0.5 text-[12px] text-white/60">{x.blurb}</div>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-8 lg:hidden">
+            <div className="flex items-center justify-between border-b mx-hairline pb-3">
+              <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
+                MOWDUUCYO CAAN AH
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-2">
+              {[
+                { href: "/qiimaha-bitcoin-maanta", label: "Qiimaha Bitcoin Maanta" },
+                { href: "/wararka-bitcoin", label: "Wararka Bitcoin" },
+                { href: "/wararka-ethereum", label: "Wararka Ethereum" },
+                { href: "/memecoin-somali", label: "Memecoin Somali" },
+                { href: "/crypto-somali", label: "Crypto Somali Hub" },
+              ].map((x) => (
+                <Link
+                  key={x.href}
+                  href={x.href}
+                  className="rounded-[12px] border mx-hairline bg-white/[0.02] px-3 py-3 text-[14px] font-semibold text-white/82 transition-colors hover:bg-white/[0.06] hover:text-white"
+                >
+                  {x.label}
+                </Link>
               ))}
             </div>
           </div>
@@ -214,30 +486,46 @@ export default async function Home(props: PageProps) {
                 WARAR DHEERAAD AH
               </div>
             </div>
-            <div className="divide-y mx-hairline">
-              {desktopStream.map((it) => (
-                <div key={it.id || it.url}>
-                  <StoryLink item={it} dense showThumb />
-                </div>
-              ))}
+            <div className="mt-2 max-h-[calc(100vh-280px)] overflow-y-auto pr-1 [scrollbar-color:rgba(255,255,255,0.28)_transparent] [scrollbar-width:thin]">
+              <div className="space-y-1">
+                {desktopStream.map((it) => (
+                  <div key={it.id || it.url}>
+                    <StoryLink item={it} dense showThumb clean />
+                  </div>
+                ))}
+                {desktopStream.length === 0 ? (
+                  <div className="py-10">
+                    <div className="mx-mono text-[12px] text-white/55">Warar lama helin.</div>
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
-            <div className="mx-mono text-[11px] text-white/45">
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t mx-hairline pt-4">
+            <div className="mx-mono flex items-center gap-2 text-[11px] text-white/45">
+              {totalPages ? (
+                <span>
+                  Bogga <span className="text-white/70">{currentPage}</span> /{" "}
+                  <span className="text-white/70">{totalPages}</span>
+                </span>
+              ) : null}
               {page.total && !q ? (
                 <>
-                  Muujinaya{" "}
+                  {totalPages ? <span className="text-white/25">•</span> : null}
+                  <span>Muujinaya </span>
                   <span className="text-white/70">{offset + 1}</span>-
                   <span className="text-white/70">
                     {Math.min(offset + page.limit, page.total)}
                   </span>{" "}
-                  ee <span className="text-white/70">{page.total}</span>
+                  <span>
+                    ee <span className="text-white/70">{page.total}</span>
+                  </span>
                 </>
               ) : null}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5">
               {prevOffset !== null ? (
                 <Link
                   href={hrefWith(params, { offset: prevOffset ? String(prevOffset) : null })}
@@ -246,6 +534,24 @@ export default async function Home(props: PageProps) {
                   ← Cusub
                 </Link>
               ) : null}
+              {pageWindow.map((p) => {
+                const active = p === currentPage;
+                return (
+                  <Link
+                    key={`bottom-${p}`}
+                    href={pageHref(p)}
+                    aria-current={active ? "page" : undefined}
+                    className={[
+                      "mx-mono rounded-full border px-3 py-2 text-[11px] font-semibold",
+                      active
+                        ? "border-[rgb(var(--accent))] bg-[rgb(var(--accent))/0.17] text-[rgb(var(--accent))]"
+                        : "mx-hairline bg-white/[0.02] text-white/65 hover:bg-white/[0.06] hover:text-white",
+                    ].join(" ")}
+                  >
+                    {p}
+                  </Link>
+                );
+              })}
               {nextOffset !== null ? (
                 <Link
                   href={hrefWith(params, { offset: String(nextOffset) })}
@@ -313,19 +619,52 @@ export default async function Home(props: PageProps) {
               </div>
             </section>
 
-            <FearGreedCard />
+            <section className="mx-panel p-4">
+              <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/60">
+                EXCHANGES
+              </div>
+              <div className="mt-1 text-[13px] text-white/65">Exchange links for signup and trading.</div>
+              <div className="mt-3 space-y-2">
+                {EXCHANGE_PARTNERS.map((x) => (
+                  <a
+                    key={x.name}
+                    href={x.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between rounded-[10px] border mx-hairline bg-white/[0.02] px-3 py-2.5 transition-colors hover:bg-white/[0.06]"
+                  >
+                    <div>
+                      <div className="text-[14px] font-semibold text-white">{x.name}</div>
+                      <div className="mx-mono text-[10px] text-white/45">{x.blurb}</div>
+                    </div>
+                    <div className="mx-mono text-[11px] text-[rgb(var(--accent))]">Open ↗</div>
+                  </a>
+                ))}
+              </div>
+            </section>
 
             <section className="mx-panel p-4">
-              <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
-                RAAC
+              <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/60">
+                MOWDUUCYO CAAN AH
               </div>
-              <div className="mt-3 space-y-2 text-[13px] text-white/70">
-                <Link
-                  href="/rss.xml"
-                  className="block rounded-xl border mx-hairline bg-white/[0.02] px-3 py-2 hover:bg-white/[0.06]"
-                >
-                  RSS
-                </Link>
+              <div className="mt-3 space-y-2">
+                {[
+                  { href: "/qiimaha-bitcoin-maanta", label: "Qiimaha Bitcoin Maanta" },
+                  { href: "/wararka-bitcoin", label: "Wararka Bitcoin" },
+                  { href: "/wararka-ethereum", label: "Wararka Ethereum" },
+                  { href: "/memecoin-somali", label: "Memecoin Somali" },
+                  { href: "/crypto-somali", label: "Crypto Somali Hub" },
+                  { href: "/baro", label: "Free courses: Baro Crypto" },
+                ].map((x) => (
+                  <Link
+                    key={x.href}
+                    href={x.href}
+                    className="group flex items-center justify-between rounded-[10px] border mx-hairline bg-white/[0.02] px-3 py-2.5 transition-colors hover:bg-white/[0.06]"
+                  >
+                    <span className="text-[14px] text-white/82 group-hover:text-white">{x.label}</span>
+                    <span className="mx-mono text-[11px] text-white/35 group-hover:text-white/60">→</span>
+                  </Link>
+                ))}
               </div>
             </section>
           </div>
