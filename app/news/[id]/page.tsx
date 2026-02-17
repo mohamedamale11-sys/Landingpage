@@ -12,7 +12,7 @@ type PageProps = {
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { id } = await props.params;
-  const siteBase = (process.env.SITE_URL || "http://localhost:3000").replace(/\/+$/, "");
+  const siteBase = (process.env.SITE_URL || "https://www.mxcrypto.net").replace(/\/+$/, "");
   let url = "";
   try {
     url = decodeStoryID(id);
@@ -60,7 +60,7 @@ export default async function NewsDetailPage(props: PageProps) {
   if (!item) notFound();
 
   const published = item.published_at;
-  const siteBase = (process.env.SITE_URL || "http://localhost:3000").replace(/\/+$/, "");
+  const siteBase = (process.env.SITE_URL || "https://www.mxcrypto.net").replace(/\/+$/, "");
   const canonical = `${siteBase}/news/${id}`;
   const sentimentRaw = (item.sentiment || "").toLowerCase().trim();
   const sentiment =

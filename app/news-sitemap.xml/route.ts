@@ -13,8 +13,10 @@ type LatestResponse = {
   next_offset?: number;
 };
 
-const BACKEND = (process.env.NEWS_API_BASE || "http://127.0.0.1:8000").replace(/\/+$/, "");
-const SITE = (process.env.SITE_URL || "http://localhost:3000").replace(/\/+$/, "");
+const BACKEND = (
+  process.env.NEWS_API_BASE || "https://mxcrypto-backend-1.onrender.com"
+).replace(/\/+$/, "");
+const SITE = (process.env.SITE_URL || "https://www.mxcrypto.net").replace(/\/+$/, "");
 
 function escapeXml(value: string) {
   return value

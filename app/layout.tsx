@@ -120,7 +120,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const siteUrl = (process.env.SITE_URL || "http://localhost:3000").replace(/\/+$/, "");
+  const siteUrl = (process.env.SITE_URL || "https://www.mxcrypto.net").replace(/\/+$/, "");
   const orgJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",

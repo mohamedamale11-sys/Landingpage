@@ -25,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base =
     process.env.SITE_URL && process.env.SITE_URL.trim() !== ""
       ? process.env.SITE_URL.replace(/\/+$/, "")
-      : "http://localhost:3000";
+      : "https://www.mxcrypto.net";
 
   const url = (p: string) => (base ? `${base}${p}` : p);
 

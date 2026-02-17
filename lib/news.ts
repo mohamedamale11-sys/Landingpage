@@ -228,8 +228,8 @@ async function getSiteBase(): Promise<string> {
   if (origin) return origin;
   const env = process.env.SITE_URL;
   if (env && env.trim()) return env.replace(/\/+$/, "");
-  // Fallback for build time.
-  return "http://localhost:3000";
+  // Build/runtime fallback for production deployments.
+  return "https://www.mxcrypto.net";
 }
 
 export async function fetchLatestPage(props?: {
