@@ -28,6 +28,41 @@ type LatestResponse = {
   error?: string;
 };
 
+const BLOCKED_NEWS_NEEDLES = [
+  "privacy-policy",
+  "terms-and-conditions",
+  "terms-of-use",
+  "terms-of-service",
+  "cookie-policy",
+  "/privacy/",
+  "/terms/",
+  "xogta gaarka ah",
+  "shuruudaha ilaalinta",
+  "shuruudaha isticmaalka",
+  "shuruudaha adeegsiga",
+  "qawaaniinta isticmaalka",
+  "qawaaniinta adeegsiga",
+  "privacy policy",
+  "terms and conditions",
+  "terms of use",
+  "terms of service",
+  "cookie policy",
+];
+
+function isBlockedNewsItem(it: WireItem) {
+  const blob = [
+    it.url || "",
+    it.title || "",
+    it.summary || "",
+    it.content || "",
+    it.section || "",
+    (it.tags || []).join(" "),
+  ]
+    .join("\n")
+    .toLowerCase();
+  return BLOCKED_NEWS_NEEDLES.some((n) => blob.includes(n));
+}
+
 function escapeRegExp(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -156,6 +191,7 @@ export function cleanWireItems(
   const pruned = items.filter((x) => {
     const title = x.title || "";
     if (!x.url || !title) return false;
+    if (isBlockedNewsItem(x)) return false;
     if (badScript.test(title)) return false;
     const ui = urlInfo(x.url);
     if (ui.ok && (ui.lang === "ko" || ui.lang === "fil")) return false;
@@ -253,7 +289,7 @@ export async function fetchLatestPage(props?: {
     u.searchParams.set("offset", String(offset));
     if (props?.lang) u.searchParams.set("lang", props.lang);
 
-    const res = await fetch(u.toString(), { next: { revalidate: 60 } });
+    const res = await fetch(u.toString(), { cache: "no-store" });
     if (!res.ok) {
       return { items: [], hasMore: false, nextOffset: null, offset, limit };
     }
@@ -284,7 +320,7 @@ export async function fetchNewsItemByURL(url: string, lang?: string): Promise<Wi
     u.searchParams.set("url", url);
     if (lang) u.searchParams.set("lang", lang);
 
-    const res = await fetch(u.toString(), { next: { revalidate: 300 } });
+    const res = await fetch(u.toString(), { cache: "no-store" });
     if (!res.ok) return null;
     const data = (await res.json()) as { ok: boolean; item?: WireItem };
     return data.item ?? null;
