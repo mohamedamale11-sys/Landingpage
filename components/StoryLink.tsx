@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { WireItem } from "@/lib/news";
 import { encodeStoryID } from "@/lib/news";
@@ -40,16 +41,14 @@ export function StoryLink(props: {
             ].join(" ")}
           >
             {item.image_url ? (
-              <img
+              <Image
                 src={item.image_url}
                 alt=""
-                width={96}
-                height={64}
+                fill
                 sizes="96px"
                 className="h-full w-full object-cover"
                 loading="lazy"
-                decoding="async"
-                referrerPolicy="no-referrer"
+                unoptimized
               />
             ) : (
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgb(var(--accent)/0.12),transparent_60%),linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.01))]" />

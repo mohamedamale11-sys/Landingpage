@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cleanWireItems, decodeStoryID, fetchLatest, fetchNewsItemByURL } from "@/lib/news";
+import { authorSlug, normalizeAuthorName } from "@/lib/authors";
 import { formatDateUTC, timeAgo } from "@/lib/time";
 import { StoryLink } from "@/components/StoryLink";
 import { ScrollResetOnMount } from "@/components/ScrollResetOnMount";
@@ -25,12 +27,15 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const title = item.title || "Warar";
   const description = item.summary || "Wararka MxCrypto";
   const canonical = `/news/${id}`;
+  const keywordString = (item.tags || []).filter(Boolean).join(", ");
   return {
     title,
     description,
     alternates: { canonical },
     authors: [{ name: "MxCrypto" }],
     publisher: "MxCrypto",
+    keywords: keywordString ? keywordString.split(",") : undefined,
+    category: item.section || "Crypto",
     openGraph: {
       title,
       description,
@@ -60,6 +65,8 @@ export default async function NewsDetailPage(props: PageProps) {
   if (!item) notFound();
 
   const published = item.published_at;
+  const authorName = normalizeAuthorName(item.author);
+  const authorHref = authorName ? `/authors/${authorSlug(authorName)}` : null;
   const siteBase = (process.env.SITE_URL || "https://www.mxcrypto.net").replace(/\/+$/, "");
   const canonical = `${siteBase}/news/${id}`;
   const sentimentRaw = (item.sentiment || "").toLowerCase().trim();
@@ -79,12 +86,20 @@ export default async function NewsDetailPage(props: PageProps) {
     headline: item.title,
     datePublished: published,
     dateModified: published,
+    inLanguage: "so",
+    isAccessibleForFree: true,
+    articleSection: item.section || "Crypto",
+    keywords: (item.tags || []).join(", "),
     author: item.author
       ? [{ "@type": "Person", name: item.author }]
       : [{ "@type": "Organization", name: "MxCrypto" }],
     publisher: {
       "@type": "Organization",
       name: "MxCrypto",
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteBase}/brand/mxcrypto-logo.png`,
+      },
     },
     mainEntityOfPage: {
       "@type": "WebPage",
@@ -142,6 +157,14 @@ export default async function NewsDetailPage(props: PageProps) {
                 <span>{item.reading_time}</span>
               </>
             ) : null}
+            {authorName && authorHref ? (
+              <>
+                <span className="text-white/25">•</span>
+                <Link href={authorHref} className="text-white/65 hover:text-white">
+                  {authorName}
+                </Link>
+              </>
+            ) : null}
             {sentiment ? (
               <>
                 <span className="text-white/25">•</span>
@@ -155,16 +178,14 @@ export default async function NewsDetailPage(props: PageProps) {
           {item.image_url ? (
             <div className="mt-6">
               <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[14px] border mx-hairline bg-black">
-                <img
+                <Image
                   src={item.image_url}
                   alt=""
-                  width={1600}
-                  height={900}
+                  fill
                   sizes="(max-width: 1024px) 100vw, 960px"
                   className="absolute inset-0 h-full w-full object-cover"
                   loading="eager"
-                  decoding="async"
-                  referrerPolicy="no-referrer"
+                  unoptimized
                 />
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/75 to-transparent" />
               </div>
@@ -208,6 +229,21 @@ export default async function NewsDetailPage(props: PageProps) {
             >
               Ku noqo Wararka
             </Link>
+            {[
+              { href: "/crypto-somali", label: "Crypto Somali" },
+              { href: "/wararka-bitcoin", label: "Wararka Bitcoin" },
+              { href: "/wararka-ethereum", label: "Wararka Ethereum" },
+              { href: "/memecoin-somali", label: "Memecoin Somali" },
+              { href: "/qiimaha-bitcoin-maanta", label: "Bitcoin Price Somali" },
+            ].map((x) => (
+              <Link
+                key={x.href}
+                href={x.href}
+                className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
+              >
+                {x.label}
+              </Link>
+            ))}
           </div>
         </article>
 
@@ -228,6 +264,28 @@ export default async function NewsDetailPage(props: PageProps) {
               </div>
             </div>
             <MoreNews currentUrl={item.url} />
+          </section>
+
+          <section className="mx-panel p-4">
+            <div className="mx-mono text-[11px] font-semibold tracking-widest text-white/55">
+              TRUST
+            </div>
+            <div className="mt-3 space-y-2">
+              {[
+                { href: "/editorial-policy", label: "Editorial Policy" },
+                { href: "/corrections-policy", label: "Corrections Policy" },
+                { href: "/methodology", label: "Methodology" },
+                { href: "/authors", label: "Authors" },
+              ].map((x) => (
+                <Link
+                  key={x.href}
+                  href={x.href}
+                  className="block rounded-[10px] border mx-hairline bg-white/[0.02] px-3 py-2 text-[13px] text-white/75 transition-colors hover:bg-white/[0.06] hover:text-white"
+                >
+                  {x.label}
+                </Link>
+              ))}
+            </div>
           </section>
         </aside>
       </div>

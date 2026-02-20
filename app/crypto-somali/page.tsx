@@ -13,7 +13,7 @@ function firstStr(v: string | string[] | undefined): string {
   return Array.isArray(v) ? v[0] ?? "" : v ?? "";
 }
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: "Crypto Somali: Warar, Qiimo, iyo Barasho",
   description:
     "Crypto Somali hub: wararka crypto ee af-Soomaali, qiimaha Bitcoin/Ethereum maanta, iyo free courses bilow ilaa advanced.",
@@ -35,6 +35,19 @@ export const metadata: Metadata = {
     images: [{ url: "/brand/mxcrypto-logo.png" }],
   },
 };
+
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const sp = (await props.searchParams) ?? {};
+  const offsetRaw = Number.parseInt(firstStr(sp.offset), 10);
+  const offset = Number.isFinite(offsetRaw) && offsetRaw > 0 ? offsetRaw : 0;
+  const noIndex = offset > 0;
+
+  return {
+    ...baseMetadata,
+    alternates: { canonical: "/crypto-somali" },
+    robots: noIndex ? { index: false, follow: true } : { index: true, follow: true },
+  };
+}
 
 export default async function CryptoSomaliPage(props: PageProps) {
   const sp = (await props.searchParams) ?? {};

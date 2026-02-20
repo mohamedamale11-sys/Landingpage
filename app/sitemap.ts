@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { collectAuthorSummaries, fetchAuthorCorpus } from "@/lib/authors";
 import { cleanWireItems, encodeStoryID, fetchLatestPage } from "@/lib/news";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -102,6 +103,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.2,
     },
+    {
+      url: url("/authors"),
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.6,
+    },
+    {
+      url: url("/editorial-policy"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
+    {
+      url: url("/corrections-policy"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
+    {
+      url: url("/methodology"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
   ];
 
   for (const it of items.slice(0, 600)) {
@@ -112,6 +137,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.7,
     });
+  }
+
+  try {
+    const corpus = await fetchAuthorCorpus({ pages: 4, pageSize: 150 });
+    const authors = collectAuthorSummaries(corpus, 80);
+    for (const a of authors) {
+      out.push({
+        url: url(`/authors/${a.slug}`),
+        lastModified: new Date(a.latestAt || now),
+        changeFrequency: "weekly",
+        priority: 0.5,
+      });
+    }
+  } catch {
+    // optional author URLs
   }
 
   return out;

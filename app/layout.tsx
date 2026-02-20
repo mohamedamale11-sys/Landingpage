@@ -79,11 +79,20 @@ export const metadata: Metadata = {
     "defi",
     "blockchain",
     "altcoins",
+    "crypto somali youtube",
+    "somali crypto community",
+    "somali crypto market",
+    "crypto trading somali",
+    "bitcoin price somali",
+    "ethereum price somali",
   ],
   applicationName: "MxCrypto",
   metadataBase: new URL(process.env.SITE_URL || "https://www.mxcrypto.net"),
   alternates: {
     canonical: "/",
+    types: {
+      "application/rss+xml": "/rss.xml",
+    },
     languages: {
       so: "/",
       "x-default": "/",
@@ -148,6 +157,13 @@ export default function RootLayout({
   const siteUrl = (process.env.SITE_URL || "https://www.mxcrypto.net").replace(/\/+$/, "");
   const gaMeasurementId =
     process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-62LCFXX3MC";
+  const sameAs = (
+    process.env.NEXT_PUBLIC_SOCIAL_LINKS ||
+    "https://t.me/MxCryptoAI,https://discord.gg/,https://www.youtube.com/"
+  )
+    .split(",")
+    .map((x) => x.trim())
+    .filter(Boolean);
   const orgJsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsMediaOrganization",
@@ -155,6 +171,14 @@ export default function RootLayout({
     url: siteUrl,
     logo: `${siteUrl}/brand/mxcrypto-logo.png`,
     inLanguage: "so",
+    areaServed: {
+      "@type": "Country",
+      name: "Somalia",
+    },
+    sameAs,
+    publishingPrinciples: `${siteUrl}/editorial-policy`,
+    correctionsPolicy: `${siteUrl}/corrections-policy`,
+    ethicsPolicy: `${siteUrl}/editorial-policy`,
   };
   const siteJsonLd = {
     "@context": "https://schema.org",

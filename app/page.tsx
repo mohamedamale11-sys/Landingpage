@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { StoryLink } from "@/components/StoryLink";
 import { cleanWireItems, encodeStoryID, fetchLatestPage } from "@/lib/news";
@@ -71,18 +72,21 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   if (q) params.set("q", q);
   if (offset > 0 && !q) params.set("offset", String(offset));
   const qs = params.toString();
-  const canonical = qs ? `/?${qs}` : "/";
+  const shouldNoIndex = q.length > 0 || offset > 0;
+  const canonical = shouldNoIndex ? "/" : (qs ? `/?${qs}` : "/");
 
   return {
     title: q ? `Raadi: ${q}` : "Wararka Crypto Somali",
     description:
-      "Wararka Bitcoin, Ethereum, iyo crypto ee af-Soomaali. News cusub oo la kala hormariyey waqtiga daabacaadda.",
+      "Wararka Bitcoin, Ethereum, iyo crypto ee af-Soomaali. News cusub oo la kala hormariyey waqtiga daabacaadda. Somali + English mixed crypto search hub.",
     alternates: { canonical },
-    robots: q ? { index: false, follow: true } : { index: true, follow: true },
+    robots: shouldNoIndex
+      ? { index: false, follow: true }
+      : { index: true, follow: true },
     openGraph: {
       title: q ? `Raadi: ${q} | MxCrypto` : "Wararka Crypto Somali | MxCrypto",
       description:
-        "Wararka Bitcoin, Ethereum, iyo crypto ee af-Soomaali. News cusub oo la kala hormariyey waqtiga daabacaadda.",
+        "Wararka Bitcoin, Ethereum, iyo crypto ee af-Soomaali. News cusub oo la kala hormariyey waqtiga daabacaadda. Somali + English mixed crypto search hub.",
       type: "website",
       images: [{ url: "/brand/mxcrypto-logo.png" }],
     },
@@ -253,6 +257,26 @@ export default async function Home(props: PageProps) {
             </Link>
           </div>
         ) : null}
+
+        {!q && offset === 0 ? (
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {[
+              { href: "/crypto-somali", label: "crypto somali" },
+              { href: "/wararka-bitcoin", label: "bitcoin news somali" },
+              { href: "/qiimaha-bitcoin-maanta", label: "bitcoin price somali" },
+              { href: "/wararka-ethereum", label: "ethereum somali" },
+              { href: "/memecoin-somali", label: "memecoin somali" },
+            ].map((x) => (
+              <Link
+                key={x.label}
+                href={x.href}
+                className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-3 py-1 text-[10px] font-semibold text-white/58 hover:bg-white/[0.06] hover:text-white/85"
+              >
+                {x.label}
+              </Link>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       {showPagination ? (
@@ -406,17 +430,15 @@ export default async function Home(props: PageProps) {
             <Link href={`/news/${encodeStoryID(hero.url)}`} scroll className="group block">
               <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[10px] bg-black sm:aspect-[16/9] sm:rounded-none">
                 {hero.image_url ? (
-                  <img
+                  <Image
                     src={hero.image_url}
                     alt=""
-                    width={1600}
-                    height={900}
+                    fill
                     sizes="(max-width: 1024px) 100vw, 720px"
                     className="absolute inset-0 h-full w-full object-cover"
                     loading="eager"
-                    decoding="async"
                     fetchPriority="high"
-                    referrerPolicy="no-referrer"
+                    unoptimized
                   />
                 ) : (
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgb(var(--accent)/0.18),transparent_60%),linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.01))]" />

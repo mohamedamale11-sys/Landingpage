@@ -14,7 +14,7 @@ function firstStr(v: string | string[] | undefined): string {
   return Array.isArray(v) ? v[0] ?? "" : v ?? "";
 }
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: "Wararka Bitcoin Somali",
   description:
     "Wararka Bitcoin ee af-Soomaali: BTC news, qiimaha, ETF updates, iyo dhaqdhaqaaqa suuqa.",
@@ -35,6 +35,19 @@ export const metadata: Metadata = {
     images: [{ url: "/brand/mxcrypto-logo.png" }],
   },
 };
+
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const sp = (await props.searchParams) ?? {};
+  const offsetRaw = Number.parseInt(firstStr(sp.offset), 10);
+  const offset = Number.isFinite(offsetRaw) && offsetRaw > 0 ? offsetRaw : 0;
+  const noIndex = offset > 0;
+
+  return {
+    ...baseMetadata,
+    alternates: { canonical: "/wararka-bitcoin" },
+    robots: noIndex ? { index: false, follow: true } : { index: true, follow: true },
+  };
+}
 
 function isBitcoinStory(text: string) {
   const t = text.toLowerCase();
