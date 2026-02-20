@@ -10,8 +10,7 @@ function shouldShowOnRoute(pathname: string) {
   return pathname === "/" || pathname.startsWith("/news/");
 }
 
-const STORAGE_KEY = "mxcrypto_course_popup_closed_at";
-const REOPEN_AFTER_MS = 12 * 60 * 60 * 1000; // 12h
+const SESSION_KEY = "mxcrypto_course_popup_dismissed";
 
 export function CoursePopup() {
   const pathname = usePathname();
@@ -20,11 +19,8 @@ export function CoursePopup() {
   const [dismissed, setDismissed] = useState(() => {
     if (typeof window === "undefined") return false;
     try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (!raw) return false;
-      const ts = Number.parseInt(raw, 10);
-      if (!Number.isFinite(ts)) return false;
-      return Date.now() - ts < REOPEN_AFTER_MS;
+      const raw = window.sessionStorage.getItem(SESSION_KEY);
+      return raw === "1";
     } catch {
       // Ignore storage errors (private mode).
       return false;
@@ -34,7 +30,7 @@ export function CoursePopup() {
   function dismiss() {
     setDismissed(true);
     try {
-      window.localStorage.setItem(STORAGE_KEY, String(Date.now()));
+      window.sessionStorage.setItem(SESSION_KEY, "1");
     } catch {
       // Ignore storage errors.
     }
