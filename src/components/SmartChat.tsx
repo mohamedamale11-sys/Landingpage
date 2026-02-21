@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { X, Settings2, Clock, Upload, Loader2, ArrowUp, Zap } from 'lucide-react'
-// Using Lucide React Icons instead of custom SVGs for the UI elements
-import mxMark from '../assets/mxcrypto-mark.png'
 
 type ChatRole = 'user' | 'assistant'
 
@@ -234,8 +232,8 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery }
         {/* Header */}
         <header className="flex-none h-16 px-5 border-b border-white/5 flex items-center justify-between bg-[#030914]/80 backdrop-blur-md">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-transparent">
-              <img src={mxMark} alt="MxCrypto Logo" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(27,231,95,0.6)]" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-brand-500/10 border border-brand-500/20">
+              <span className="text-brand-500 font-bold text-[16px] tracking-tight drop-shadow-[0_0_8px_rgba(27,231,95,0.4)]">Mx</span>
             </div>
             <span className="font-semibold text-white/90 text-[15px]">MxCrypto AI</span>
             <span className="px-1.5 py-0.5 rounded border border-brand-500/30 bg-brand-500/10 text-[9px] font-bold text-brand-500 uppercase tracking-widest">

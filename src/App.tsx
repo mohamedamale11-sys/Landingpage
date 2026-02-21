@@ -29,7 +29,6 @@ import {
 
 // Using a placeholder SmartChat for the MVP integration
 import { SmartChat } from './components/SmartChat';
-import mxMark from './assets/mxcrypto-mark.png';
 
 const SIDEBAR_TOP = [
   { label: 'Home', icon: Home, active: true },
@@ -81,9 +80,9 @@ function SideNav() {
   return (
     <aside className="hidden w-[260px] flex-col border-r border-white/5 bg-[#030914] text-sm lg:flex h-screen sticky top-0 overflow-y-auto mx-scroll pb-6">
       <div className="flex flex-col px-4 py-5 gap-4">
-        <div className="flex items-center gap-2 px-2 text-white/90 hover:text-white cursor-pointer transition-colors mt-2">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-transparent">
-            <img src={mxMark} alt="MxCrypto Logo" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(27,231,95,0.6)]" />
+        <div className="flex items-center gap-2 px-2 text-white/90 hover:text-white cursor-pointer transition-colors mt-2 group">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-brand-500/10 border border-brand-500/20 group-hover:border-brand-500/40 transition-colors">
+            <span className="text-brand-500 font-bold text-[18px] tracking-tighter drop-shadow-[0_0_8px_rgba(27,231,95,0.4)]">Mx</span>
           </div>
           <span className="font-semibold text-[17px] tracking-wide ml-1">MxCrypto AI</span>
           <ChevronDown size={14} className="text-white/40 ml-1" />
