@@ -3,9 +3,8 @@ import type { FlowListItem, FlowSnapshot } from './flow'
 function getAPIBase(): string {
   const base = (import.meta.env.VITE_API_BASE || '').toString().trim()
   if (base) return base.replace(/\/+$/, '')
-  // Default to hosted backend so local frontend works even when local API is not running.
-  // Override with VITE_API_BASE=http://localhost:8000 when needed.
-  return 'https://mxcrypto-backend-1.onrender.com'
+  // Default to same-origin /api so dev proxy and platform rewrites avoid CORS issues.
+  return ''
 }
 
 const API_BASE = getAPIBase()

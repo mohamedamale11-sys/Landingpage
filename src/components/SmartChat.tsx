@@ -268,7 +268,7 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery, 
 
   const endpoint = useMemo(() => {
     const base = (import.meta.env.VITE_API_BASE || '').toString().trim()
-    if (!base) return 'https://mxcrypto-backend-1.onrender.com/api/ai/chat'
+    if (!base) return '/api/ai/chat'
     return `${base.replace(/\/+$/, '')}/api/ai/chat`
   }, [])
 
