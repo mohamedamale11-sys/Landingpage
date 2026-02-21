@@ -22,11 +22,14 @@ import {
   Settings2,
   ArrowUp,
   PanelLeftClose,
-  MoreHorizontal
+  MoreHorizontal,
+  Sparkles,
+  PieChart
 } from 'lucide-react';
 
 // Using a placeholder SmartChat for the MVP integration
 import { SmartChat } from './components/SmartChat';
+import mxLogo from './assets/mxcrypto-logo.jpg';
 
 const SIDEBAR_TOP = [
   { label: 'Home', icon: Home, active: true },
@@ -35,8 +38,8 @@ const SIDEBAR_TOP = [
 ];
 
 const PROFILER_SUB = [
-  { label: 'Nansen Profiler' },
-  { label: 'Wallet Profiler for Token' },
+  { label: 'Wallet Profiler' },
+  { label: 'Token Profiler' },
   { label: 'Deep Research' },
 ];
 
@@ -64,7 +67,7 @@ const HISTORY_SUB = [
 
 const SIDEBAR_FOOTER = [
   { label: 'Get Started', icon: Star, alert: true },
-  { label: 'Nansen API', icon: Link },
+  { label: 'MxCrypto API', icon: Link },
   { label: 'What\'s New', icon: MoreHorizontal },
   { label: 'Academy', icon: BookOpen },
   { label: 'Help', icon: HelpCircle },
@@ -78,11 +81,11 @@ function SideNav() {
   return (
     <aside className="hidden w-[260px] flex-col border-r border-white/5 bg-[#030914] text-sm lg:flex h-screen sticky top-0 overflow-y-auto mx-scroll pb-6">
       <div className="flex flex-col px-4 py-5 gap-4">
-        <div className="flex items-center gap-2 px-2 text-white/90 hover:text-white cursor-pointer transition-colors">
-          <div className="w-6 h-6 rounded-md bg-brand-500/20 flex items-center justify-center text-brand-500">
-            <Activity size={14} />
+        <div className="flex items-center gap-2 px-2 text-white/90 hover:text-white cursor-pointer transition-colors mt-2">
+          <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-[#020710]">
+            <img src={mxLogo} alt="MxCrypto Logo" className="w-full h-full object-cover" />
           </div>
-          <span className="font-medium text-[15px] tracking-wide">Nansen Wallet</span>
+          <span className="font-semibold text-[16px] tracking-wide ml-1">MxCrypto AI</span>
           <ChevronDown size={14} className="text-white/40 ml-1" />
         </div>
         <div className="px-2 text-[13px] flex items-center gap-1.5">
@@ -237,8 +240,53 @@ function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#020710] text-white font-sans flex selection:bg-brand-500/30">
+    <div className="min-h-screen bg-[#020710] text-white font-sans flex selection:bg-brand-500/30 pb-20 lg:pb-0">
       <SideNav />
+
+      {/* Floating "Ask AI" Button (Desktop/Tablet) */}
+      <button
+        onClick={() => setChatOpen(true)}
+        className="hidden sm:flex fixed bottom-6 right-6 z-40 items-center justify-center gap-2 rounded-full bg-brand-500 hover:bg-brand-400 text-[#020710] px-5 py-3.5 shadow-[0_8px_32px_rgba(0,238,179,0.3)] transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_40px_rgba(0,238,179,0.4)] group"
+      >
+        <Sparkles size={18} className="animate-pulse" />
+        <span className="font-semibold text-[15px] tracking-wide">Ask AI</span>
+      </button>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#020710]/95 backdrop-blur-md border-t border-white/5 px-2 py-2 pb-safe">
+        <div className="flex items-center justify-around max-w-md mx-auto relative">
+          <button className="flex flex-col items-center gap-1 p-2 text-white/50 hover:text-white transition-colors">
+            <Home size={20} />
+            <span className="text-[10px] font-medium">Home</span>
+          </button>
+
+          <button className="flex flex-col items-center gap-1 p-2 text-white/50 hover:text-white transition-colors">
+            <Coins size={20} />
+            <span className="text-[10px] font-medium">Tokens</span>
+          </button>
+
+          {/* Center Ask AI Button */}
+          <div className="relative -top-6">
+            <div className="absolute inset-0 bg-brand-500/20 rounded-full blur-md" />
+            <button
+              onClick={() => setChatOpen(true)}
+              className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-b from-brand-400 to-brand-600 text-[#020710] shadow-[0_8px_24px_rgba(0,238,179,0.4)] border-4 border-[#020710] transform transition-transform active:scale-95"
+            >
+              <Sparkles size={24} className="animate-pulse" />
+            </button>
+          </div>
+
+          <button className="flex flex-col items-center gap-1 p-2 text-white/50 hover:text-white transition-colors">
+            <PieChart size={20} />
+            <span className="text-[10px] font-medium">Portfolio</span>
+          </button>
+
+          <button className="flex flex-col items-center gap-1 p-2 text-white/50 hover:text-white transition-colors">
+            <Settings size={20} />
+            <span className="text-[10px] font-medium">Menu</span>
+          </button>
+        </div>
+      </div>
 
       <main className="flex-1 flex flex-col min-w-0 relative">
         {/* Top Header */}
@@ -249,7 +297,7 @@ function App() {
             </button>
             <div className="flex h-full items-center gap-6">
               <button className="h-full border-b-2 border-brand-500 text-[14px] font-medium text-brand-500 tracking-wide">
-                Nansen Spotlight
+                MxCrypto Terminal
               </button>
               <button className="h-full border-b-2 border-transparent text-[14px] font-medium text-white/50 hover:text-white/80 transition-colors tracking-wide">
                 My Dashboard
@@ -299,7 +347,7 @@ function App() {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleSearch(searchQuery);
                   }}
-                  placeholder="Ask Nansen"
+                  placeholder="Ask MxCrypto AI"
                   className="w-full bg-transparent text-white placeholder-white/30 px-5 pt-5 pb-4 text-[15px] outline-none"
                 />
 

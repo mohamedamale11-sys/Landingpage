@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { X, Settings2, Clock, Upload, Loader2, ArrowUp, Zap } from 'lucide-react'
-
-// Using Lucide React Icons instead of custom SVGs for the UI elements, 
-// though we can customize them to look as close as possible to Nansen.
+// Using Lucide React Icons instead of custom SVGs for the UI elements
+import mxLogo from '../assets/mxcrypto-logo.jpg'
 
 type ChatRole = 'user' | 'assistant'
 
@@ -229,16 +228,16 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery }
 
       {/* Right Side Panel */}
       <aside
-        className={`fixed top-0 right-0 z-50 h-full w-full sm:w-[500px] border-l border-white/5 bg-[#020710] shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed top-0 right-0 z-[60] h-full w-full sm:w-[500px] border-l border-white/5 bg-[#020710] shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
         {/* Header */}
         <header className="flex-none h-16 px-5 border-b border-white/5 flex items-center justify-between bg-[#030914]/80 backdrop-blur-md">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-full bg-brand-500/10 flex items-center justify-center border border-brand-500/20">
-              <Zap size={14} className="text-brand-500" />
+            <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-[#020710] border border-brand-500/20">
+              <img src={mxLogo} alt="MxCrypto Logo" className="w-full h-full object-cover" />
             </div>
-            <span className="font-semibold text-white/90 text-sm">Nansen AI</span>
+            <span className="font-semibold text-white/90 text-sm">MxCrypto AI</span>
             <span className="px-1.5 py-0.5 rounded border border-brand-500/30 bg-brand-500/10 text-[9px] font-bold text-brand-500 uppercase tracking-widest">
               Beta
             </span>
@@ -262,7 +261,7 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery }
         <div ref={listRef} className="flex-1 overflow-y-auto mx-scroll p-4 space-y-6">
           {messages.length === 0 ? (
             <div className="h-full flex items-center justify-center text-sm text-white/30 text-center px-8">
-              Ask Nansen AI anything about tokens, wallets, or market trends.
+              Ask MxCrypto AI anything about tokens, wallets, or market trends.
             </div>
           ) : (
             messages.map((m) => {
@@ -311,7 +310,7 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery }
                   onSubmit(e);
                 }
               }}
-              placeholder="Ask Nansen"
+              placeholder="Ask MxCrypto AI"
               className="w-full max-h-32 min-h-[52px] resize-none bg-transparent text-white placeholder-white/30 px-4 py-4 text-[14px] outline-none"
             />
 
