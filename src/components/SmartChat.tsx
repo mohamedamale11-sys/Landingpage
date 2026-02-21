@@ -61,6 +61,18 @@ const SOMALI_WORDS = [
 ]
 
 const ENGLISH_WORDS = ['what', 'how', 'when', 'please', 'buy', 'sell', 'analy', 'market', 'chart', 'now']
+const FOLLOWUP_HINTS = [
+  'it',
+  'that',
+  'this',
+  'those',
+  'them',
+  'why',
+  'how',
+  'which one',
+  'the one',
+  'same one',
+]
 
 function makeID() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`
@@ -110,6 +122,55 @@ function toHistory(messages: ChatMessage[], maxEntries = 6) {
     .map((m) => ({ role: m.role, content: m.text }))
 
   return history.length <= maxEntries ? history : history.slice(history.length - maxEntries)
+}
+
+function normalizeInline(text: string) {
+  return text.replace(/\s+/g, ' ').trim()
+}
+
+function extractTickers(text: string) {
+  const matches = text.match(/\$[A-Za-z0-9_]{2,20}/g) || []
+  const uniq = Array.from(new Set(matches.map((m) => m.toUpperCase())))
+  return uniq.slice(0, 4)
+}
+
+function looksLikeFollowUp(prompt: string) {
+  const p = prompt.trim().toLowerCase()
+  if (!p) return false
+
+  // Don't treat every short prompt as follow-up; only use clear follow-up cues.
+  if (FOLLOWUP_HINTS.some((hint) => p.includes(hint))) return true
+
+  // Short continuation prompts.
+  if (p.length <= 28) {
+    if (/\b(why|how|more|details|explain|compare|same)\b/.test(p)) return true
+  }
+  return false
+}
+
+function buildContextualPrompt(prompt: string, messages: ChatMessage[]) {
+  const clean = prompt.trim()
+  if (!looksLikeFollowUp(clean)) return clean
+
+  const lastAssistant = [...messages]
+    .reverse()
+    .find((m) => m.role === 'assistant' && !m.error && m.text.trim().length > 0)
+  if (!lastAssistant) return clean
+
+  const assistantText = normalizeInline(lastAssistant.text).slice(0, 420)
+  if (!assistantText) return clean
+
+  const tickers = extractTickers(lastAssistant.text)
+  const tickerHint = tickers.length > 0 ? `Likely referenced token(s): ${tickers.join(', ')}.` : ''
+
+  return [
+    'Follow-up question in ongoing chat. Resolve pronouns using previous assistant response.',
+    tickerHint,
+    `Previous assistant response: ${assistantText}`,
+    `User follow-up: ${clean}`,
+  ]
+    .filter(Boolean)
+    .join('\n')
 }
 
 function pickErrorMessage(decoded: Record<string, unknown> | null, statusCode: number, rawBody: string) {
@@ -207,10 +268,7 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery, 
 
   const endpoint = useMemo(() => {
     const base = (import.meta.env.VITE_API_BASE || '').toString().trim()
-    if (!base) {
-      if (import.meta.env.DEV) return '/api/ai/chat'
-      return 'https://mxcrypto-backend-1.onrender.com/api/ai/chat'
-    }
+    if (!base) return 'https://mxcrypto-backend-1.onrender.com/api/ai/chat'
     return `${base.replace(/\/+$/, '')}/api/ai/chat`
   }, [])
 
@@ -251,7 +309,8 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery, 
 
     const userMsg: ChatMessage = { id: makeID(), role: 'user', text: prompt }
     const assistantMsg: ChatMessage = { id: makeID(), role: 'assistant', text: '' }
-    const history = toHistory(messages)
+    const history = toHistory(messages, 10)
+    const modelPrompt = buildContextualPrompt(prompt, messages)
     const fallbackLang = normalizeLangCode(navigator.language || 'en')
     const lang = preferredChatLanguage(prompt, fallbackLang)
     let snapshot = createEmptyFlowSnapshot(windowHours)
@@ -269,7 +328,7 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery, 
           Accept: 'text/event-stream,application/json',
         },
         body: JSON.stringify({
-          message: prompt,
+          message: modelPrompt,
           lang,
           window_hours: windowHours,
           include_blocks: true,
@@ -406,10 +465,10 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery, 
       ) : null}
 
       <aside
-        className={`fixed right-0 top-0 z-[60] flex h-full w-full flex-col border-l border-white/5 bg-[#020710] shadow-2xl transition-transform duration-300 ease-in-out sm:w-[480px] ${isOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed right-0 top-0 z-[60] flex h-full w-full flex-col border-l border-white/5 bg-[#020710] pb-[env(safe-area-inset-bottom)] shadow-2xl transition-transform duration-300 ease-in-out sm:w-[480px] ${isOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
-        <header className="flex h-15 flex-none items-center justify-between border-b border-white/5 bg-[#030914]/80 px-4 backdrop-blur-md">
+        <header className="flex h-14 flex-none items-center justify-between border-b border-white/5 bg-[#030914]/80 px-4 backdrop-blur-md">
           <div className="flex items-center text-[18px] font-semibold tracking-tight">
             <span className="text-brand-500">Mx</span>
             <span className="text-white">Crypto</span>
@@ -532,7 +591,10 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery, 
           </AnimatePresence>
         </div>
 
-        <div className="flex-none border-t border-white/5 bg-[#020710] p-3 pb-5 sm:pb-3">
+        <div
+          className="flex-none border-t border-white/5 bg-[#020710] p-3 pb-3"
+          style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+        >
           <form
             onSubmit={onSubmit}
             className="relative flex items-end gap-2 rounded-md border border-white/20 bg-[#060b13] p-2 shadow-2xl transition-all duration-300 focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500/50"

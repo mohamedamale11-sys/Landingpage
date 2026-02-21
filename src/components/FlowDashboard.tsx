@@ -47,7 +47,7 @@ function chartMax(items: FlowListItem[]) {
   return Math.max(...items.map((item) => Math.abs(item.valueSOL)), 1)
 }
 
-function ChartCard(props: { title: string; tone: 'buy' | 'sell'; items: FlowListItem[] }) {
+function ChartCard(props: { title: string; tone: 'buy' | 'sell'; items: FlowListItem[]; isLoading: boolean }) {
   const maxValue = chartMax(props.items)
   const isBuy = props.tone === 'buy'
   const barColor = isBuy ? '#2dd4bf' : '#f87171'
@@ -70,7 +70,11 @@ function ChartCard(props: { title: string; tone: 'buy' | 'sell'; items: FlowList
         <span className="text-[11px] font-bold uppercase tracking-widest text-white/30 bg-white/5 px-2 py-0.5 rounded">SOL volume</span>
       </div>
 
-      {props.items.length === 0 ? (
+      {props.isLoading && props.items.length === 0 ? (
+        <div className="flex h-[280px] items-center justify-center rounded-2xl border border-dashed border-white/10 text-sm text-white/60">
+          Loading latest flow...
+        </div>
+      ) : props.items.length === 0 ? (
         <div className="flex h-[280px] items-center justify-center rounded-2xl border border-dashed border-white/10 text-sm text-white/60">
           No data in this window.
         </div>
@@ -228,8 +232,8 @@ export function FlowDashboard(props: FlowDashboardProps) {
       ) : null}
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <ChartCard title="Most bought" tone="buy" items={inflow} />
-        <ChartCard title="Most sold" tone="sell" items={outflow} />
+        <ChartCard title="Most bought" tone="buy" items={inflow} isLoading={props.isLoading} />
+        <ChartCard title="Most sold" tone="sell" items={outflow} isLoading={props.isLoading} />
       </div>
     </section>
   )

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { Activity, Home, Menu, MessageSquare, Sparkles, TrendingUp, ArrowUp } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Activity, Home, MessageSquare, Sparkles, TrendingUp, ArrowUp } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 import { FlowDashboard } from './components/FlowDashboard'
@@ -8,11 +8,10 @@ import { WhalesTable } from './components/WhalesTable'
 import { createEmptyFlowSnapshot, type FlowSnapshot } from './lib/flow'
 import { fetchLiveFlowData, fetchWhaleHoldings, type WhaleHoldingRow } from './lib/api'
 
-type TabKey = 'home' | 'chat' | 'flows' | 'whales'
+type TabKey = 'home' | 'flows' | 'whales'
 
-const SIDEBAR_TABS: Array<{ key: TabKey; label: string; icon: typeof Home }> = [
+const SIDEBAR_TABS: Array<{ key: TabKey; label: string; icon: typeof Home | typeof TrendingUp | typeof Activity }> = [
   { key: 'home', label: 'Home', icon: Home },
-  { key: 'chat', label: 'AI Chat', icon: MessageSquare },
   { key: 'flows', label: 'Inflow / Outflow', icon: TrendingUp },
   { key: 'whales', label: 'Whale Activity', icon: Activity },
 ]
@@ -253,7 +252,20 @@ function App() {
   const whaleCacheRef = useRef<Map<number, { rows: WhaleHoldingRow[]; ts: number }>>(new Map())
 
   const asErrorMessage = (err: unknown, fallback: string) => {
-    if (err instanceof Error && err.message.trim().length > 0) return err.message
+    if (err instanceof Error && err.message.trim().length > 0) {
+      const msg = err.message.trim()
+      const lowered = msg.toLowerCase()
+      if (lowered.includes('failed to fetch')) {
+        return 'Backend is not reachable. Start backend server on port 8000 and refresh.'
+      }
+      if (lowered.includes('request timeout')) {
+        return 'Backend request timed out. Try refresh in a few seconds.'
+      }
+      if (lowered.includes('token-flow') || lowered.includes('overview')) {
+        return 'Smart money endpoint is temporarily unavailable. Retrying may fix it.'
+      }
+      return msg
+    }
     return fallback
   }
 
@@ -262,11 +274,10 @@ function App() {
     if (!q) return
     setInitialQuery(q)
     setChatOpen(true)
-    setActiveTab('chat')
     setSearchQuery('')
   }
 
-  const ensureFlowData = async (force = false) => {
+  const ensureFlowData = useCallback(async (force = false) => {
     if (flowLoading) return
     const cached = flowCacheRef.current.get(windowHours)
     const now = Date.now()
@@ -289,9 +300,9 @@ function App() {
     } finally {
       setFlowLoading(false)
     }
-  }
+  }, [flowLoading, windowHours])
 
-  const ensureWhaleRows = async (force = false) => {
+  const ensureWhaleRows = useCallback(async (force = false) => {
     if (whaleLoading) return
     const now = Date.now()
     const cached = whaleCacheRef.current.get(windowHours)
@@ -303,7 +314,7 @@ function App() {
     setWhaleLoading(true)
     setWhaleError('')
     try {
-      const rows = await fetchWhaleHoldings(windowHours, 40)
+      const rows = await fetchWhaleHoldings(windowHours, 30)
       whaleCacheRef.current.set(windowHours, { rows, ts: Date.now() })
       setWhaleRows(rows)
     } catch (err) {
@@ -313,14 +324,21 @@ function App() {
     } finally {
       setWhaleLoading(false)
     }
-  }
+  }, [whaleLoading, windowHours])
 
   useEffect(() => {
-    if (activeTab === 'chat') setChatOpen(true)
     if (activeTab === 'flows') void ensureFlowData(false)
     if (activeTab === 'whales') void ensureWhaleRows(false)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, windowHours])
+  }, [activeTab, windowHours, ensureFlowData, ensureWhaleRows])
+
+  useEffect(() => {
+    if (activeTab !== 'flows' && activeTab !== 'whales') return
+    const id = window.setInterval(() => {
+      if (activeTab === 'flows') void ensureFlowData(true)
+      if (activeTab === 'whales') void ensureWhaleRows(true)
+    }, 60_000)
+    return () => window.clearInterval(id)
+  }, [activeTab, ensureFlowData, ensureWhaleRows])
 
   return (
     <div className="flex min-h-screen bg-[#020710] pb-20 font-sans text-white selection:bg-brand-500/30 lg:pb-0">
@@ -328,77 +346,70 @@ function App() {
 
       <button
         type="button"
-        onClick={() => { setActiveTab('chat'); setChatOpen(true) }}
-        className={`group fixed bottom-6 z-40 hidden items-center justify-center gap-2 rounded-full bg-brand-500 px-5 py-3.5 text-[#020710] shadow-[0_8px_32px_rgba(27,231,95,0.3)] transition-all duration-300 hover:scale-105 hover:bg-brand-400 sm:flex ${chatOpen ? 'right-[520px]' : 'right-6'}`}
+        onClick={() => setChatOpen(true)}
+        className={`group fixed bottom-6 z-40 hidden items-center justify-center gap-2 rounded-full bg-brand-500 px-5 py-3.5 text-[#020710] shadow-[0_8px_32px_rgba(27,231,95,0.3)] transition-all duration-500 sm:flex ${chatOpen ? 'translate-x-[200%] opacity-0 pointer-events-none right-6' : 'hover:scale-105 hover:bg-brand-400 right-6'}`}
       >
         <Sparkles size={18} className="animate-pulse" />
         <span className="text-[15px] font-semibold tracking-wide">Ask AI</span>
       </button>
 
-      <main className={`relative flex min-w-0 flex-1 flex-col bg-[#010408] transition-[padding] duration-300 ${chatOpen ? 'lg:pr-[500px]' : 'lg:pr-0'}`}>
+      <main className={`relative flex min-w-0 flex-1 flex-col bg-[#010408] transition-[padding] duration-300 ease-in-out ${chatOpen ? 'lg:pr-[480px]' : 'lg:pr-0'}`}>
         <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b border-white/5 bg-[#020710]/80 px-4 backdrop-blur-md lg:px-6">
           <div className="flex h-full items-center gap-6">
-            <button type="button" className="-ml-2 p-1.5 text-white/60 hover:text-white lg:hidden"><Menu size={20} /></button>
             <button type="button" onClick={() => setActiveTab('home')} className="text-[14px] font-medium tracking-wide text-brand-500">
               MxCrypto Terminal
             </button>
           </div>
           <button
             type="button"
-            onClick={() => { setActiveTab('chat'); setChatOpen(true) }}
-            className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/5 px-3 py-1.5 text-[13px] font-medium text-white/80 transition-colors hover:bg-white/10"
+            onClick={() => setChatOpen(true)}
+            className={`flex items-center gap-2 rounded-lg border border-white/5 bg-white/5 px-3 py-1.5 text-[13px] font-medium text-white/80 transition-colors hover:bg-white/10 ${chatOpen ? 'hidden' : ''}`}
           >
             <MessageSquare size={14} className="text-white/60" />
             Open Chat
           </button>
         </header>
 
-        {activeTab === 'home' && (
-          <HomePanel searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSubmit={() => openChatWithPrompt(searchQuery)} onPick={openChatWithPrompt} onTabNavigate={setActiveTab} />
-        )}
-
-        {activeTab === 'flows' && (
-          <div className="mx-auto w-full max-w-[1160px] px-4 pb-24 pt-8 lg:px-8">
-            <FlowDashboard
-              windowHours={windowHours}
-              isLoading={flowLoading}
-              error={flowError}
-              inflow={flowSnapshot?.inflow}
-              outflow={flowSnapshot?.outflow}
-              metrics={flowSnapshot?.metrics}
-              updatedAt={flowSnapshot?.updatedAt}
-              onRefresh={() => void ensureFlowData(true)}
-              onWindowChange={setWindowHours}
-            />
-          </div>
-        )}
-
-        {activeTab === 'whales' && (
-          <WhalesTable
-            rows={whaleRows}
-            isLoading={whaleLoading}
-            error={whaleError}
-            windowHours={windowHours}
-            onWindowChange={setWindowHours}
-            onRefresh={() => void ensureWhaleRows(true)}
+        {/* Clickable overlay to easily close chat when clicking the blurred background */}
+        {chatOpen && (
+          <div
+            className="absolute inset-x-0 bottom-0 top-14 z-20 cursor-pointer"
+            onClick={() => setChatOpen(false)}
           />
         )}
 
-        {activeTab === 'chat' && (
-          <div className="mx-auto w-full max-w-[1160px] px-4 pb-24 pt-8 lg:px-8">
-            <div className="rounded-2xl border border-white/10 bg-[#030914]/75 p-6">
-              <h2 className="text-xl font-semibold text-white">AI Chat</h2>
-              <p className="mt-2 text-sm text-white/60">Chat panel is open on the right. Ask about memecoin narratives, smart money flow, and whale activity.</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {QUICK_PROMPTS.map((p) => (
-                  <button key={p} type="button" onClick={() => openChatWithPrompt(p)}
-                    className="max-w-full truncate rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/70 transition hover:border-brand-500/50 hover:text-white"
-                  >{p}</button>
-                ))}
-              </div>
+        <div className={`flex-1 transition-all duration-300 ease-out ${chatOpen ? 'opacity-30 blur-[6px] pointer-events-none select-none' : ''}`}>
+          {activeTab === 'home' && (
+            <HomePanel searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSubmit={() => openChatWithPrompt(searchQuery)} onPick={openChatWithPrompt} onTabNavigate={setActiveTab} />
+          )}
+
+          {activeTab === 'flows' && (
+            <div className="mx-auto w-full max-w-[1160px] px-4 pb-24 pt-8 lg:px-8">
+              <FlowDashboard
+                windowHours={windowHours}
+                isLoading={flowLoading}
+                error={flowError}
+                inflow={flowSnapshot?.inflow}
+                outflow={flowSnapshot?.outflow}
+                metrics={flowSnapshot?.metrics}
+                updatedAt={flowSnapshot?.updatedAt}
+                onRefresh={() => void ensureFlowData(true)}
+                onWindowChange={setWindowHours}
+              />
             </div>
-          </div>
-        )}
+          )}
+
+          {activeTab === 'whales' && (
+            <WhalesTable
+              rows={whaleRows}
+              isLoading={whaleLoading}
+              error={whaleError}
+              windowHours={windowHours}
+              onWindowChange={setWindowHours}
+              onRefresh={() => void ensureWhaleRows(true)}
+            />
+          )}
+        </div>
 
         <SmartChat
           isOpen={chatOpen}
@@ -412,7 +423,7 @@ function App() {
         />
       </main>
 
-      <MobileBottomBar activeTab={activeTab} onTabChange={setActiveTab} onAskAI={() => { setActiveTab('chat'); setChatOpen(true) }} />
+      <MobileBottomBar activeTab={activeTab} onTabChange={setActiveTab} onAskAI={() => setChatOpen(true)} />
     </div>
   )
 }

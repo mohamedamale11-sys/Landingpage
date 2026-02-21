@@ -3,11 +3,13 @@ import type { FlowListItem, FlowSnapshot } from './flow'
 function getAPIBase(): string {
   const base = (import.meta.env.VITE_API_BASE || '').toString().trim()
   if (base) return base.replace(/\/+$/, '')
-  if (import.meta.env.DEV) return ''
+  // Default to hosted backend so local frontend works even when local API is not running.
+  // Override with VITE_API_BASE=http://localhost:8000 when needed.
   return 'https://mxcrypto-backend-1.onrender.com'
 }
 
 const API_BASE = getAPIBase()
+const REQUEST_TIMEOUT_MS = 12_000
 
 interface TokenFlowAggregate {
   mint: string
@@ -25,6 +27,9 @@ interface TokenFlowAggregate {
 
 interface OverviewStatsResponse {
   ok: boolean
+  degraded?: boolean
+  error?: string
+  error_code?: string
   stats: {
     window_hours: number
     total_trades: number
@@ -37,6 +42,9 @@ interface OverviewStatsResponse {
 
 interface TokenFlowResponse {
   ok: boolean
+  degraded?: boolean
+  error?: string
+  error_code?: string
   window_hours: number
   top_inflow: TokenFlowAggregate[]
   top_outflow: TokenFlowAggregate[]
@@ -62,6 +70,23 @@ interface FeedResponse {
   ok: boolean
   stale?: boolean
   items: FeedTradeRecord[]
+}
+
+type APIErrorPayload = {
+  error?: string
+  request_id?: string
+}
+
+class HTTPError extends Error {
+  status: number
+  retriable: boolean
+
+  constructor(message: string, status: number, retriable: boolean) {
+    super(message)
+    this.name = 'HTTPError'
+    this.status = status
+    this.retriable = retriable
+  }
 }
 
 export type FeedTradeItem = {
@@ -105,6 +130,75 @@ function asFiniteNumber(value: unknown, fallback = 0): number {
 
 function pickString(value: unknown, fallback = ''): string {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : fallback
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
+}
+
+function isRetriableStatus(status: number) {
+  return status === 429 || status >= 500
+}
+
+function buildAPIError(label: string, status: number, payload?: APIErrorPayload) {
+  const suffix = payload?.request_id ? ` (request ${payload.request_id})` : ''
+  const message = payload?.error?.trim() || `${label}: ${status}`
+  return new HTTPError(`${message}${suffix}`, status, isRetriableStatus(status))
+}
+
+async function fetchJSON<T>(path: string, label: string, retries = 1): Promise<T> {
+  const url = `${API_BASE}${path}`
+  let lastError: Error | null = null
+
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+    try {
+      const res = await fetch(url, { signal: controller.signal })
+      if (res.ok) {
+        const data = (await res.json()) as T
+        return data
+      }
+      let payload: APIErrorPayload | undefined
+      try {
+        payload = (await res.json()) as APIErrorPayload
+      } catch {
+        payload = undefined
+      }
+      const err = buildAPIError(label, res.status, payload)
+      if (attempt < retries && isRetriableStatus(res.status)) {
+        await delay(350 * (attempt + 1))
+        lastError = err
+        continue
+      }
+      throw err
+    } catch (err) {
+      if (err instanceof HTTPError) {
+        if (attempt < retries && err.retriable) {
+          await delay(350 * (attempt + 1))
+          lastError = err
+          continue
+        }
+        throw err
+      }
+
+      const isAbort = err instanceof DOMException ? err.name === 'AbortError' : false
+      const message = err instanceof Error ? err.message : String(err)
+      const wrapped = new Error(isAbort || message.includes('aborted') ? `${label}: request timeout` : message)
+      if (attempt < retries && (isAbort || message.toLowerCase().includes('network') || message.toLowerCase().includes('fetch'))) {
+        await delay(350 * (attempt + 1))
+        lastError = wrapped
+        continue
+      }
+      throw wrapped
+    } finally {
+      clearTimeout(timeout)
+    }
+  }
+
+  throw lastError || new Error(`${label}: request failed`)
 }
 
 function aggToFlowItem(agg: TokenFlowAggregate): FlowListItem {
@@ -166,10 +260,10 @@ export async function fetchTokenFlow(windowHours = 24, limit = 10): Promise<{
   outflow: FlowListItem[]
   stale: boolean
 }> {
-  const url = `${API_BASE}/api/web/token-flow?window_hours=${windowHours}&limit=${limit}`
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(`token-flow: ${res.status}`)
-  const data: TokenFlowResponse = await res.json()
+  const data = await fetchJSON<TokenFlowResponse>(`/api/web/token-flow?window_hours=${windowHours}&limit=${limit}`, 'token-flow', 1)
+  if (data.degraded && (!data.top_inflow?.length && !data.top_outflow?.length)) {
+    throw new Error(data.error?.trim() || 'Smart-money flow is temporarily unavailable.')
+  }
   return {
     inflow: (data.top_inflow || []).map(aggToFlowItem),
     outflow: (data.top_outflow || []).map(aggToFlowItem),
@@ -178,10 +272,10 @@ export async function fetchTokenFlow(windowHours = 24, limit = 10): Promise<{
 }
 
 export async function fetchWhaleHoldings(windowHours = 24, limit = 30): Promise<WhaleHoldingRow[]> {
-  const url = `${API_BASE}/api/web/token-flow?window_hours=${windowHours}&limit=${limit}`
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(`token-flow: ${res.status}`)
-  const data: TokenFlowResponse = await res.json()
+  const data = await fetchJSON<TokenFlowResponse>(`/api/web/token-flow?window_hours=${windowHours}&limit=${limit}`, 'token-flow', 1)
+  if (data.degraded && (!data.top_inflow?.length && !data.top_outflow?.length)) {
+    throw new Error(data.error?.trim() || 'Whale activity data is temporarily unavailable.')
+  }
 
   const merged = new Map<string, WhaleHoldingRow>()
   for (const agg of data.top_inflow || []) {
@@ -211,10 +305,10 @@ export async function fetchOverview(windowHours = 24): Promise<{
   inflow: FlowListItem[]
   outflow: FlowListItem[]
 }> {
-  const url = `${API_BASE}/api/web/overview?window_hours=${windowHours}`
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(`overview: ${res.status}`)
-  const data: OverviewStatsResponse = await res.json()
+  const data = await fetchJSON<OverviewStatsResponse>(`/api/web/overview?window_hours=${windowHours}`, 'overview', 1)
+  if (data.degraded) {
+    throw new Error(data.error?.trim() || 'Overview data is temporarily unavailable.')
+  }
   const s = data.stats
   return {
     totalTrades: asFiniteNumber(s.total_trades),
@@ -226,10 +320,7 @@ export async function fetchOverview(windowHours = 24): Promise<{
 }
 
 export async function fetchFeed(limit = 40): Promise<FeedTradeItem[]> {
-  const url = `${API_BASE}/api/web/feed?limit=${limit}`
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(`feed: ${res.status}`)
-  const data: FeedResponse = await res.json()
+  const data = await fetchJSON<FeedResponse>(`/api/web/feed?limit=${limit}`, 'feed', 1)
   return (data.items || []).map(mapFeedTrade)
 }
 

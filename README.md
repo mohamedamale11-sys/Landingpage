@@ -29,10 +29,12 @@ Open: `http://localhost:5173`
 
 ## Backend target
 
-By default, the app calls `/api/ai/chat` (use Vite proxy in `vite.config.ts`).
+By default, the app calls the hosted backend:
 
-If you want to call live backend directly, set env:
+`https://mxcrypto-backend-1.onrender.com`
+
+If you want to call a local backend instead, set env:
 
 ```bash
-VITE_API_BASE=https://mxcrypto-backend-1.onrender.com npm run dev
+VITE_API_BASE=http://localhost:8000 npm run dev
 ```

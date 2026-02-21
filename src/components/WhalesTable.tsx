@@ -21,6 +21,12 @@ const WINDOW_OPTIONS = [
 const STABLES = new Set(['USDC', 'USDT', 'DAI', 'PYUSD', 'USDE'])
 const MAJORS = new Set(['SOL', 'ETH', 'BTC', 'WETH', 'WBTC'])
 
+function windowLabel(hours: number) {
+  if (hours <= 24) return '24H'
+  if (hours < 168) return `${Math.round(hours / 24)}D`
+  return '7D'
+}
+
 function formatCompactUSD(value: number | null) {
   if (!value || value <= 0) return '—'
   if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(2)}B`
@@ -63,6 +69,7 @@ export function WhalesTable(props: WhalesTableProps) {
     if (filteredRows.length === 0) return 1
     return Math.max(...filteredRows.map((row) => row.buySOL), 1)
   }, [filteredRows])
+  const mobileRows = useMemo(() => filteredRows.slice(0, 24), [filteredRows])
 
   const resetFilters = () => {
     setExcludeStable(true)
@@ -169,19 +176,115 @@ export function WhalesTable(props: WhalesTableProps) {
 
         {props.error ? <div className="border-b border-rose-500/20 bg-rose-500/10 px-5 py-3 text-sm text-rose-300">{props.error}</div> : null}
 
-        <div className="overflow-x-auto relative z-10">
+        <div className="md:hidden relative z-10 divide-y divide-white/[0.04]">
+          {props.isLoading && mobileRows.length === 0
+            ? Array.from({ length: 6 }).map((_, idx) => (
+                <div key={`m-loading-${idx}`} className="animate-pulse px-5 py-4">
+                  <div className="mb-3 flex items-center gap-3">
+                    <span className="block h-9 w-9 rounded-full bg-white/10" />
+                    <div className="space-y-2">
+                      <span className="block h-3 w-20 rounded bg-white/10" />
+                      <span className="block h-3 w-28 rounded bg-white/10" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <span className="block h-3 rounded bg-white/10" />
+                    <span className="block h-3 rounded bg-white/10" />
+                    <span className="block h-3 rounded bg-white/10" />
+                    <span className="block h-3 rounded bg-white/10" />
+                  </div>
+                </div>
+              ))
+            : mobileRows.map((row) => {
+                const isPositive = row.netSOL >= 0
+                const toneClass = isPositive ? 'text-brand-400' : 'text-rose-400'
+                return (
+                  <div key={`m-${row.mint}-${row.flowSide}`} className="px-5 py-4">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <div className="flex min-w-0 items-center gap-3">
+                        {row.imageUrl ? (
+                          <img
+                            src={row.imageUrl}
+                            alt={row.symbol}
+                            className="h-9 w-9 rounded-full border border-white/10 bg-[#0c1322]"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#0c1322] text-[12px] font-bold text-white/80">
+                            {row.symbol.charAt(0)}
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <div className="truncate text-[14px] font-bold text-white">{row.symbol}</div>
+                          <div className="truncate text-[12px] text-white/55">{row.name}</div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className={`text-[15px] font-bold ${toneClass}`}>
+                          {isPositive ? '+' : '-'}{formatSOL(row.netSOL)} SOL
+                        </div>
+                        <div className="text-[11px] text-white/45">Net flow</div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 text-[12px]">
+                      <div className="rounded-lg border border-white/10 bg-white/[0.02] px-2.5 py-2">
+                        <div className="text-white/45">Buy</div>
+                        <div className="mt-0.5 font-semibold text-white">{formatSOL(row.buySOL)} SOL</div>
+                      </div>
+                      <div className="rounded-lg border border-white/10 bg-white/[0.02] px-2.5 py-2">
+                        <div className="text-white/45">Trades</div>
+                        <div className="mt-0.5 font-semibold text-white">{row.tradeCount}</div>
+                      </div>
+                      <div className="rounded-lg border border-white/10 bg-white/[0.02] px-2.5 py-2">
+                        <div className="text-white/45">MCap</div>
+                        <div className="mt-0.5 font-semibold text-white">{formatCompactUSD(row.marketCapUsd)}</div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+
+          {!props.isLoading && mobileRows.length === 0 ? (
+            <div className="px-5 py-14 text-center text-sm text-white/50">
+              No smart-money token rows in this window.
+            </div>
+          ) : null}
+        </div>
+
+        <div className="relative z-10 hidden overflow-x-auto md:block">
           <table className="w-full min-w-[980px] text-left border-collapse">
             <thead className="bg-[#050912]/90 backdrop-blur-md text-[11px] font-bold uppercase tracking-widest text-white/60 sticky top-0 border-b border-white/5">
               <tr>
                 <th className="px-6 py-4">Chain</th>
                 <th className="px-6 py-4">Token</th>
                 <th className="px-6 py-4 text-right">Buy SOL</th>
-                <th className="px-6 py-4 text-right">Net Flow (24H)</th>
+                <th className="px-6 py-4 text-right">Net Flow ({windowLabel(props.windowHours)})</th>
                 <th className="px-6 py-4 text-right">Trades</th>
                 <th className="px-6 py-4 text-right">Market Cap</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.03] text-[13px] text-white/90">
+              {props.isLoading && filteredRows.length === 0
+                ? Array.from({ length: 7 }).map((_, idx) => (
+                    <tr key={`loading-${idx}`} className="animate-pulse">
+                      <td className="px-6 py-4"><span className="block h-5 w-5 rounded-full bg-white/10" /></td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <span className="block h-8 w-8 rounded-full bg-white/10" />
+                          <div className="space-y-2">
+                            <span className="block h-3 w-20 rounded bg-white/10" />
+                            <span className="block h-3 w-32 rounded bg-white/10" />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right"><span className="inline-block h-3 w-24 rounded bg-white/10" /></td>
+                      <td className="px-6 py-4 text-right"><span className="inline-block h-3 w-20 rounded bg-white/10" /></td>
+                      <td className="px-6 py-4 text-right"><span className="inline-block h-3 w-12 rounded bg-white/10" /></td>
+                      <td className="px-6 py-4 text-right"><span className="inline-block h-3 w-16 rounded bg-white/10" /></td>
+                    </tr>
+                  ))
+                : null}
               <AnimatePresence>
                 {filteredRows.map((row) => {
                   const isPositive = row.netSOL >= 0
