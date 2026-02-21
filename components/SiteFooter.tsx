@@ -29,6 +29,7 @@ export function SiteFooter() {
           {[
             { href: "/", label: "Warar" },
             { href: "/data", label: "Xogta Suuqa" },
+            { href: "/chat", label: "MxCrypto AI" },
             { href: "/crypto-somali", label: "Crypto Somali" },
             { href: "/baro", label: "Free Courses" },
             { href: "/authors", label: "Authors" },
