@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { X, Settings2, Clock, Upload, Loader2, ArrowUp, Zap } from 'lucide-react'
 // Using Lucide React Icons instead of custom SVGs for the UI elements
-import mxLogo from '../assets/mxcrypto-logo.jpg'
+import mxMark from '../assets/mxcrypto-mark.png'
 
 type ChatRole = 'user' | 'assistant'
 
@@ -234,10 +234,10 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery }
         {/* Header */}
         <header className="flex-none h-16 px-5 border-b border-white/5 flex items-center justify-between bg-[#030914]/80 backdrop-blur-md">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-[#020710] border border-brand-500/20">
-              <img src={mxLogo} alt="MxCrypto Logo" className="w-full h-full object-cover" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-transparent">
+              <img src={mxMark} alt="MxCrypto Logo" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(27,231,95,0.6)]" />
             </div>
-            <span className="font-semibold text-white/90 text-sm">MxCrypto AI</span>
+            <span className="font-semibold text-white/90 text-[15px]">MxCrypto AI</span>
             <span className="px-1.5 py-0.5 rounded border border-brand-500/30 bg-brand-500/10 text-[9px] font-bold text-brand-500 uppercase tracking-widest">
               Beta
             </span>
@@ -298,61 +298,63 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery }
         </div>
 
         {/* Input Area */}
-        <div className="flex-none p-4 bg-[#020710]">
-          <form onSubmit={onSubmit} className="relative flex flex-col bg-[#030914] border border-white/[0.08] focus-within:border-brand-500/40 rounded-2xl shadow-lg transition-all duration-300">
-            <textarea
-              rows={1}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  onSubmit(e);
-                }
-              }}
-              placeholder="Ask MxCrypto AI"
-              className="w-full max-h-32 min-h-[52px] resize-none bg-transparent text-white placeholder-white/30 px-4 py-4 text-[14px] outline-none"
-            />
+        <div className="flex-none p-4 pb-6 sm:pb-4 border-t border-white/5 bg-[#020710]">
+          <div className="relative group">
+            <form onSubmit={onSubmit} className="relative flex flex-col bg-[#030914] border border-white/[0.08] focus-within:border-brand-500/40 rounded-2xl shadow-lg transition-all duration-300">
+              <textarea
+                rows={1}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    onSubmit(e);
+                  }
+                }}
+                placeholder="Ask MxCrypto AI"
+                className="w-full max-h-32 min-h-[52px] resize-none bg-transparent text-white placeholder-white/30 px-4 py-4 text-[16px] sm:text-[14px] outline-none"
+              />
 
-            {/* Toolbar */}
-            <div className="flex items-center justify-between px-2 pb-2">
-              <div className="flex items-center gap-1.5">
-                <button type="button" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-[11px] font-medium text-white/60">
-                  <Zap size={12} className="text-white/40" />
-                  Expert
-                  <span className="text-[9px] opacity-50 ml-0.5">▼</span>
-                </button>
-                <button type="button" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-[11px] font-medium text-white/60">
-                  <Upload size={12} className="text-white/40" />
-                  Trade
-                </button>
-                <button type="button" className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                  <Settings2 size={14} className="text-white/50" />
-                </button>
-                <button type="button" className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                  <Clock size={14} className="text-white/50" />
-                </button>
-              </div>
-
-              <div className="flex items-center gap-2 pr-1">
-                <div className="hidden sm:block px-1.5 py-0.5 rounded text-[10px] text-white/30 font-mono">
-                  ⌘ E
+              {/* Toolbar */}
+              <div className="flex items-center justify-between px-2 pb-2">
+                <div className="flex items-center gap-1.5">
+                  <button type="button" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-[11px] font-medium text-white/60">
+                    <Zap size={12} className="text-white/40" />
+                    Expert
+                    <span className="text-[9px] opacity-50 ml-0.5">▼</span>
+                  </button>
+                  <button type="button" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-[11px] font-medium text-white/60">
+                    <Upload size={12} className="text-white/40" />
+                    Trade
+                  </button>
+                  <button type="button" className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                    <Settings2 size={14} className="text-white/50" />
+                  </button>
+                  <button type="button" className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                    <Clock size={14} className="text-white/50" />
+                  </button>
                 </div>
-                <button
-                  type="submit"
-                  disabled={!canSend}
-                  className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300 ${canSend
-                    ? 'bg-brand-500 text-[#020710] shadow-[0_0_12px_rgba(0,238,179,0.25)] hover:bg-brand-400'
-                    : 'bg-white/5 text-white/30'
-                    }`}
-                >
-                  <ArrowUp size={16} strokeWidth={2.5} />
-                </button>
+
+                <div className="flex items-center gap-2 pr-1">
+                  <div className="hidden sm:block px-1.5 py-0.5 rounded text-[10px] text-white/30 font-mono">
+                    ⌘ E
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={!canSend}
+                    className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300 ${input.trim()
+                      ? 'bg-brand-500 text-[#020710] shadow-[0_0_16px_rgba(27,231,95,0.4)] hover:bg-brand-400 hover:scale-105'
+                      : 'bg-white/5 text-white/30 border border-white/5'
+                      }`}
+                  >
+                    <ArrowUp size={16} strokeWidth={2.5} />
+                  </button>
+                </div>
               </div>
+            </form>
+            <div className="mt-3 text-center text-[11px] text-white/30">
+              AI can make mistakes. Consider verifying important information.
             </div>
-          </form>
-          <div className="mt-3 text-center text-[11px] text-white/30">
-            AI can make mistakes. Consider verifying important information.
           </div>
         </div>
       </aside>

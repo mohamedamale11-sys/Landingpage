@@ -29,7 +29,7 @@ import {
 
 // Using a placeholder SmartChat for the MVP integration
 import { SmartChat } from './components/SmartChat';
-import mxLogo from './assets/mxcrypto-logo.jpg';
+import mxMark from './assets/mxcrypto-mark.png';
 
 const SIDEBAR_TOP = [
   { label: 'Home', icon: Home, active: true },
@@ -82,10 +82,10 @@ function SideNav() {
     <aside className="hidden w-[260px] flex-col border-r border-white/5 bg-[#030914] text-sm lg:flex h-screen sticky top-0 overflow-y-auto mx-scroll pb-6">
       <div className="flex flex-col px-4 py-5 gap-4">
         <div className="flex items-center gap-2 px-2 text-white/90 hover:text-white cursor-pointer transition-colors mt-2">
-          <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-[#020710]">
-            <img src={mxLogo} alt="MxCrypto Logo" className="w-full h-full object-cover" />
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-transparent">
+            <img src={mxMark} alt="MxCrypto Logo" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(27,231,95,0.6)]" />
           </div>
-          <span className="font-semibold text-[16px] tracking-wide ml-1">MxCrypto AI</span>
+          <span className="font-semibold text-[17px] tracking-wide ml-1">MxCrypto AI</span>
           <ChevronDown size={14} className="text-white/40 ml-1" />
         </div>
         <div className="px-2 text-[13px] flex items-center gap-1.5">
@@ -246,14 +246,14 @@ function App() {
       {/* Floating "Ask AI" Button (Desktop/Tablet) */}
       <button
         onClick={() => setChatOpen(true)}
-        className="hidden sm:flex fixed bottom-6 right-6 z-40 items-center justify-center gap-2 rounded-full bg-brand-500 hover:bg-brand-400 text-[#020710] px-5 py-3.5 shadow-[0_8px_32px_rgba(0,238,179,0.3)] transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_40px_rgba(0,238,179,0.4)] group"
+        className="hidden sm:flex fixed bottom-6 right-6 z-40 items-center justify-center gap-2 rounded-full bg-brand-500 hover:bg-brand-400 text-[#020710] px-5 py-3.5 shadow-[0_8px_32px_rgba(27,231,95,0.3)] transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_40px_rgba(27,231,95,0.4)] group"
       >
         <Sparkles size={18} className="animate-pulse" />
         <span className="font-semibold text-[15px] tracking-wide">Ask AI</span>
       </button>
 
       {/* Mobile Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#020710]/95 backdrop-blur-md border-t border-white/5 px-2 py-2 pb-safe">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#020710]/95 backdrop-blur-md border-t border-white/5 px-2 py-3 pb-6">
         <div className="flex items-center justify-around max-w-md mx-auto relative">
           <button className="flex flex-col items-center gap-1 p-2 text-white/50 hover:text-white transition-colors">
             <Home size={20} />
@@ -270,7 +270,7 @@ function App() {
             <div className="absolute inset-0 bg-brand-500/20 rounded-full blur-md" />
             <button
               onClick={() => setChatOpen(true)}
-              className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-b from-brand-400 to-brand-600 text-[#020710] shadow-[0_8px_24px_rgba(0,238,179,0.4)] border-4 border-[#020710] transform transition-transform active:scale-95"
+              className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-b from-brand-400 to-brand-600 text-[#020710] shadow-[0_8px_24px_rgba(27,231,95,0.4)] border-4 border-[#020710] transform transition-transform active:scale-95"
             >
               <Sparkles size={24} className="animate-pulse" />
             </button>
@@ -348,7 +348,7 @@ function App() {
                     if (e.key === 'Enter') handleSearch(searchQuery);
                   }}
                   placeholder="Ask MxCrypto AI"
-                  className="w-full bg-transparent text-white placeholder-white/30 px-5 pt-5 pb-4 text-[15px] outline-none"
+                  className="w-full bg-transparent text-white placeholder-white/30 px-5 pt-5 pb-4 text-[16px] sm:text-[15px] outline-none"
                 />
 
                 {/* Input Toolbar */}
@@ -378,7 +378,7 @@ function App() {
                     </div>
                     <button
                       onClick={() => handleSearch(searchQuery)}
-                      className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300 ${searchQuery ? 'bg-brand-500 text-[#020710] hover:bg-brand-400 shadow-[0_0_15px_rgba(0,238,179,0.3)]' : 'bg-white/5 text-white/30 border border-white/5'}`}
+                      className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300 ${searchQuery ? 'bg-brand-500 text-[#020710] hover:bg-brand-400 shadow-[0_0_15px_rgba(27,231,95,0.4)]' : 'bg-white/5 text-white/30 border border-white/5'}`}
                     >
                       <ArrowUp size={16} strokeWidth={2.5} />
                     </button>
