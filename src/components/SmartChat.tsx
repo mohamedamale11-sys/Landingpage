@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { FormEvent } from 'react'
-import { X, Settings2, Clock, Upload, Loader2, ArrowUp, Zap } from 'lucide-react'
+import type { FormEvent, ReactNode } from 'react'
+import { ArrowUp, Sparkles, X } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { applyFlowBlock, createEmptyFlowSnapshot, type FlowSnapshot } from '../lib/flow'
 
 type ChatRole = 'user' | 'assistant'
 
@@ -14,64 +16,220 @@ type ChatMessage = {
 type StreamEvent = {
   type?: string
   text?: string
+  block?: unknown
+  data?: unknown
   error?: string
+  error_code?: string
+  retry_after_seconds?: number
   response_id?: string
   response?: { answer?: string }
   credits_remaining?: number
   credits_total?: number
+  daily_credits_remaining?: number
+  daily_credits_total?: number
 }
+
+interface SmartChatProps {
+  isOpen: boolean
+  onClose: () => void
+  initialQuery?: string
+  onClearInitialQuery?: () => void
+  onFlowSnapshot?: (snapshot: FlowSnapshot) => void
+}
+
+const WINDOW_OPTIONS = [6, 24, 72]
+const DEFAULT_WINDOW_HOURS = 24
+
+const STARTER_PROMPTS = [
+  'Show me the biggest whale buys in the last 24 hours',
+  'What is the overall smart money flow direction today?',
+  'Which token has strongest inflow right now?',
+  'Which token has strongest outflow right now?',
+]
+
+const SOMALI_WORDS = [
+  'maxaa',
+  'sidee',
+  'goorma',
+  'fadlan',
+  'waxaan',
+  'iibs',
+  'iibi',
+  'falanq',
+  'suuq',
+  'hadda',
+]
+
+const ENGLISH_WORDS = ['what', 'how', 'when', 'please', 'buy', 'sell', 'analy', 'market', 'chart', 'now']
 
 function makeID() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`
-}
-
-function toHistory(messages: ChatMessage[]) {
-  return messages
-    .filter((m) => m.text.trim().length > 0)
-    .slice(-10)
-    .map((m) => ({ role: m.role, content: m.text }))
 }
 
 function parseMaybeJSON(raw: string) {
   try {
     const data = JSON.parse(raw)
     if (data && typeof data === 'object') return data as Record<string, unknown>
-    return null
   } catch {
-    return null
+    // ignore
   }
+  return null
 }
 
-interface SmartChatProps {
-  isOpen: boolean;
-  onClose: () => void;
-  initialQuery?: string;
-  onClearInitialQuery?: () => void;
+function normalizeLangCode(raw: string) {
+  const lowered = raw.trim().toLowerCase()
+  return lowered.startsWith('so') ? 'so' : 'en'
 }
 
-export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery }: SmartChatProps) {
+function keywordScore(text: string, words: string[]) {
+  return words.reduce((score, word) => (word && text.includes(word) ? score + 1 : score), 0)
+}
+
+function preferredChatLanguage(message: string, fallback: string) {
+  const fallbackLang = normalizeLangCode(fallback)
+  const lower = message.trim().toLowerCase()
+  if (lower.length === 0) return fallbackLang
+
+  for (const rune of lower) {
+    const code = rune.codePointAt(0) || 0
+    if (code >= 0x0600 && code <= 0x06ff) return 'so'
+  }
+
+  const soScore = keywordScore(lower, SOMALI_WORDS)
+  const enScore = keywordScore(lower, ENGLISH_WORDS)
+
+  if (soScore >= 2 && soScore >= enScore + 1) return 'so'
+  if (enScore >= 2 && enScore > soScore) return 'en'
+
+  return fallbackLang
+}
+
+function toHistory(messages: ChatMessage[], maxEntries = 6) {
+  const history = messages
+    .filter((m) => !m.error && m.text.trim().length > 0)
+    .map((m) => ({ role: m.role, content: m.text }))
+
+  return history.length <= maxEntries ? history : history.slice(history.length - maxEntries)
+}
+
+function pickErrorMessage(decoded: Record<string, unknown> | null, statusCode: number, rawBody: string) {
+  const fromDecoded = typeof decoded?.error === 'string' ? decoded.error.trim() : ''
+  if (fromDecoded) return fromDecoded
+
+  const body = rawBody.trim()
+  if (!body) return `HTTP ${statusCode}`
+
+  const lowered = body.toLowerCase()
+  if (lowered.includes('<html') || lowered.includes('<!doctype html')) {
+    return 'Server returned an unexpected response.'
+  }
+  return body.length > 240 ? `${body.slice(0, 240)}...` : body
+}
+
+function mapStatus(raw?: string) {
+  const v = (raw || '').trim()
+  if (!v) return 'Thinking...'
+  const lowered = v.toLowerCase()
+  if (lowered.includes('think')) return 'Thinking...'
+  if (lowered.includes('fetch')) return 'Fetching data...'
+  if (lowered.includes('analyz')) return 'Analyzing...'
+  return v
+}
+
+function formatStreamError(evt: StreamEvent) {
+  const base = (evt.error || 'Unknown error').trim()
+  if (evt.retry_after_seconds && evt.retry_after_seconds > 0) {
+    return `${base} (retry in ${evt.retry_after_seconds}s)`
+  }
+  return base
+}
+
+function renderInlineMarkdown(text: string): ReactNode[] {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g)
+  return parts.map((part, idx) => {
+    if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+      return (
+        <strong key={`md-${idx}`} className="font-semibold text-white">
+          {part.slice(2, -2)}
+        </strong>
+      )
+    }
+    return <span key={`txt-${idx}`}>{part}</span>
+  })
+}
+
+function renderAssistantText(text: string) {
+  const lines = text.split(/\r?\n/).filter((line, idx, all) => !(line.trim() === '' && idx === all.length - 1))
+  return (
+    <div className="space-y-4">
+      {lines.map((line, idx) => {
+        const clean = line.trim()
+        if (clean.length === 0) return <div key={`sp-${idx}`} className="h-1" />
+        const isBullet = /^[-*]\s+/.test(clean)
+        const content = clean.replace(/^[-*]\s+/, '')
+        return (
+          <p key={`p-${idx}`} className={`text-[14.5px] leading-[1.8] tracking-[0.01em] ${isBullet ? 'pl-4 relative before:absolute before:left-0 before:top-2 before:w-1.5 before:h-1.5 before:rounded-full before:bg-brand-500/50' : ''}`}>
+            {renderInlineMarkdown(content)}
+          </p>
+        )
+      })}
+    </div>
+  )
+}
+
+function ThinkingIndicator() {
+  return (
+    <div className="flex items-center gap-1 px-1">
+      <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.4, 1, 0.4] }} transition={{ duration: 1, repeat: Infinity }} className="w-1.5 h-1.5 rounded-full bg-brand-500" />
+      <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.4, 1, 0.4] }} transition={{ duration: 1, repeat: Infinity, delay: 0.2 }} className="w-1.5 h-1.5 rounded-full bg-brand-500" />
+      <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.4, 1, 0.4] }} transition={{ duration: 1, repeat: Infinity, delay: 0.4 }} className="w-1.5 h-1.5 rounded-full bg-brand-500" />
+    </div>
+  )
+}
+
+export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery, onFlowSnapshot }: SmartChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [statusText, setStatusText] = useState('')
   const [responseID, setResponseID] = useState('')
-  const [credits, setCredits] = useState<{ remaining?: number; total?: number }>({ remaining: 16, total: 20 })
+  const [windowHours, setWindowHours] = useState(DEFAULT_WINDOW_HOURS)
+  const [credits, setCredits] = useState<{
+    remaining?: number
+    total?: number
+    dailyRemaining?: number
+    dailyTotal?: number
+  }>({})
 
-  const canSend = useMemo(() => input.trim().length > 0 && !isSending, [input, isSending])
   const listRef = useRef<HTMLDivElement | null>(null)
+  const canSend = useMemo(() => input.trim().length > 0 && !isSending, [input, isSending])
+  const initialSentRef = useRef('')
+
+  const endpoint = useMemo(() => {
+    const base = (import.meta.env.VITE_API_BASE || '').toString().trim()
+    if (!base) {
+      if (import.meta.env.DEV) return '/api/ai/chat'
+      return 'https://mxcrypto-backend-1.onrender.com/api/ai/chat'
+    }
+    return `${base.replace(/\/+$/, '')}/api/ai/chat`
+  }, [])
 
   useEffect(() => {
     const el = listRef.current
     if (!el) return
     el.scrollTop = el.scrollHeight
-  }, [messages, statusText])
+  }, [messages, statusText, isSending])
 
   useEffect(() => {
-    if (initialQuery && isOpen) {
-      setInput(initialQuery)
-      sendMessage(initialQuery)
-      onClearInitialQuery?.()
-    }
+    if (!initialQuery || !isOpen) return
+    const q = initialQuery.trim()
+    if (!q) return
+    if (initialSentRef.current === q) return
+
+    initialSentRef.current = q
+    void sendMessage(q)
+    onClearInitialQuery?.()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialQuery, isOpen])
 
   function updateAssistantText(id: string, patch: (prev: string) => string, error = false) {
@@ -94,37 +252,55 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery }
     const userMsg: ChatMessage = { id: makeID(), role: 'user', text: prompt }
     const assistantMsg: ChatMessage = { id: makeID(), role: 'assistant', text: '' }
     const history = toHistory(messages)
+    const fallbackLang = normalizeLangCode(navigator.language || 'en')
+    const lang = preferredChatLanguage(prompt, fallbackLang)
+    let snapshot = createEmptyFlowSnapshot(windowHours)
 
     setMessages((prev) => [...prev, userMsg, assistantMsg])
     setInput('')
     setIsSending(true)
-    setStatusText('Discovering trending tokens...')
+    setStatusText('Thinking...')
 
     try {
-      const res = await fetch('/api/ai/chat', {
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: {
-          'content-type': 'application/json',
-          accept: 'text/event-stream,application/json',
+          'Content-Type': 'application/json',
+          Accept: 'text/event-stream,application/json',
         },
         body: JSON.stringify({
           message: prompt,
-          lang: 'so',
-          history,
-          source: 'mx_web_chat_mvp',
+          lang,
+          window_hours: windowHours,
+          include_blocks: true,
           ...(responseID ? { previous_response_id: responseID } : {}),
+          ...(history.length ? { history } : {}),
         }),
       })
 
-      const contentType = res.headers.get('content-type') || ''
+      const contentType = (res.headers.get('content-type') || '').toLowerCase()
+
+      if (res.status >= 400 && !contentType.includes('text/event-stream')) {
+        const body = await res.text()
+        const decoded = parseMaybeJSON(body)
+        updateAssistantText(assistantMsg.id, () => pickErrorMessage(decoded, res.status, body), true)
+        setStatusText('')
+        return
+      }
+
       if (!contentType.includes('text/event-stream')) {
-        const plain = await res.text()
-        const parsed = parseMaybeJSON(plain)
-        const answer =
-          (parsed?.answer as string | undefined) ||
-          (parsed?.error as string | undefined) ||
-          `Request failed (${res.status})`
-        updateAssistantText(assistantMsg.id, () => answer, !res.ok)
+        const body = await res.text()
+        const decoded = parseMaybeJSON(body)
+
+        if (decoded && decoded.ok === true) {
+          const answer = typeof decoded.answer === 'string' ? decoded.answer : ''
+          if (answer) updateAssistantText(assistantMsg.id, () => answer)
+          if (typeof decoded.response_id === 'string') setResponseID(decoded.response_id)
+          setStatusText('')
+          return
+        }
+
+        updateAssistantText(assistantMsg.id, () => pickErrorMessage(decoded, res.status, body), true)
         setStatusText('')
         return
       }
@@ -166,27 +342,41 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery }
           switch ((evt.type || '').toLowerCase()) {
             case 'credits':
               setCredits((prev) => ({
-                remaining:
-                  typeof evt.credits_remaining === 'number' ? evt.credits_remaining : prev.remaining,
+                remaining: typeof evt.credits_remaining === 'number' ? evt.credits_remaining : prev.remaining,
                 total: typeof evt.credits_total === 'number' ? evt.credits_total : prev.total,
+                dailyRemaining:
+                  typeof evt.daily_credits_remaining === 'number' ? evt.daily_credits_remaining : prev.dailyRemaining,
+                dailyTotal: typeof evt.daily_credits_total === 'number' ? evt.daily_credits_total : prev.dailyTotal,
               }))
               break
             case 'status':
             case 'thinking':
-              setStatusText((evt.text || '').trim())
+              setStatusText(mapStatus(evt.text))
               break
+            case 'block': {
+              const rawBlock = evt.block ?? evt.data
+              if (rawBlock) {
+                snapshot = applyFlowBlock(snapshot, rawBlock)
+                if (snapshot.inflow.length > 0 || snapshot.outflow.length > 0) {
+                  onFlowSnapshot?.(snapshot)
+                }
+              }
+              break
+            }
             case 'delta':
               if (evt.text) updateAssistantText(assistantMsg.id, (prev) => prev + evt.text)
               break
             case 'done':
               if (evt.response_id) setResponseID(evt.response_id)
               if (evt.response?.answer) {
-                updateAssistantText(assistantMsg.id, (prev) => (prev.trim().length ? prev : evt.response?.answer || ''))
+                updateAssistantText(assistantMsg.id, (prev) =>
+                  prev.trim().length ? prev : evt.response?.answer || '',
+                )
               }
               setStatusText('')
               break
             case 'error':
-              updateAssistantText(assistantMsg.id, () => evt.error || 'Unknown error from AI service.', true)
+              updateAssistantText(assistantMsg.id, () => formatStreamError(evt), true)
               setStatusText('')
               break
             default:
@@ -194,14 +384,9 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery }
           }
         }
       }
-    } catch {
-      // For MVP/Frontend testing if backend is down, we simulate a response after a delay
-      await new Promise(r => setTimeout(r, 2000));
-      updateAssistantText(
-        assistantMsg.id,
-        () => 'Here is the analysis you requested. The midcap memecoin on Solana that fits your criteria is heavily influenced by recent whale accumulation patterns tracked on-chain. Would you like a deeper dive?',
-        false,
-      )
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Cannot reach server. Check backend and try again.'
+      updateAssistantText(assistantMsg.id, () => msg, true)
       setStatusText('')
     } finally {
       setIsSending(false)
@@ -216,147 +401,166 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery }
 
   return (
     <>
-      {/* Mobile Backdrop */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
-          onClick={onClose}
-        />
-      )}
+      {isOpen ? (
+        <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden" onClick={onClose} />
+      ) : null}
 
-      {/* Right Side Panel */}
       <aside
-        className={`fixed top-0 right-0 z-[60] h-full w-full sm:w-[500px] border-l border-white/5 bg-[#020710] shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed right-0 top-0 z-[60] flex h-full w-full flex-col border-l border-white/5 bg-[#020710] shadow-2xl transition-transform duration-300 ease-in-out sm:w-[480px] ${isOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
-        {/* Header */}
-        <header className="flex-none h-16 px-5 border-b border-white/5 flex items-center justify-between bg-[#030914]/80 backdrop-blur-md">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center font-bold text-[18px] tracking-tight">
-              <span className="text-brand-500">Mx</span>
-              <span className="text-white">Crypto</span>
-              <span className="bg-brand-500 text-white text-[11px] px-1.5 py-0.5 rounded-md ml-1.5 flex items-center justify-center">
-                AI
-              </span>
-            </div>
-            <span className="px-1.5 py-0.5 rounded border border-brand-500/30 bg-brand-500/10 text-[9px] font-bold text-brand-500 uppercase tracking-widest ml-1">
-              Beta
-            </span>
+        <header className="flex h-15 flex-none items-center justify-between border-b border-white/5 bg-[#030914]/80 px-4 backdrop-blur-md">
+          <div className="flex items-center text-[18px] font-semibold tracking-tight">
+            <span className="text-brand-500">Mx</span>
+            <span className="text-white">Crypto</span>
+            <span className="ml-1.5 rounded bg-brand-500 px-1.5 py-0.5 text-[10px] font-bold text-[#020710]">AI</span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5 text-[11px] font-medium text-white/40">
-              <span>{credits.total ? `${credits.remaining}/${credits.total}` : 'MVP'} Credits</span>
-              <button className="text-white/70 hover:text-white transition-colors ml-1">Upgrade</button>
+          <div className="flex items-center gap-3">
+            <div className="text-right text-[11px] font-medium text-white/40">
+              {credits.total ? `${credits.remaining ?? 0}/${credits.total}` : 'Credits'}
             </div>
             <button
+              type="button"
               onClick={onClose}
-              className="p-1.5 rounded-md text-white/40 hover:text-white hover:bg-white/5 transition-colors"
+              className="rounded-md p-1.5 text-white/40 transition-colors hover:bg-white/5 hover:text-white"
             >
               <X size={16} />
             </button>
           </div>
         </header>
 
-        {/* Chat History Area */}
-        <div ref={listRef} className="flex-1 overflow-y-auto mx-scroll p-4 space-y-6">
+        <div className="flex items-center gap-2 border-b border-white/5 px-4 py-2.5">
+          <span className="mr-1 text-[11px] uppercase tracking-[0.14em] text-white/40">Window</span>
+          {WINDOW_OPTIONS.map((h) => (
+            <button
+              key={h}
+              type="button"
+              onClick={() => setWindowHours(h)}
+              className={[
+                'rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition',
+                windowHours === h
+                  ? 'border-brand-500/35 bg-brand-500/10 text-brand-500'
+                  : 'border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white',
+              ].join(' ')}
+            >
+              {h}h
+            </button>
+          ))}
+        </div>
+
+        <div ref={listRef} className="mx-scroll flex-1 space-y-5 overflow-y-auto p-4">
           {messages.length === 0 ? (
-            <div className="h-full flex items-center justify-center text-sm text-white/30 text-center px-8">
-              Ask MxCrypto AI anything about tokens, wallets, or market trends.
+            <div className="h-full px-2 pt-2">
+              <div className="mb-4 flex items-center gap-2 text-sm text-white/70">
+                <Sparkles size={15} className="text-brand-500" />
+                Ask about smart money inflow/outflow and whale activity.
+              </div>
+              <div className="flex flex-wrap gap-2.5">
+                {STARTER_PROMPTS.map((prompt, idx) => (
+                  <motion.button
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    key={prompt}
+                    type="button"
+                    onClick={() => void sendMessage(prompt)}
+                    className="max-w-full truncate rounded-2xl border border-white/10 bg-[#060b13]/80 px-4 py-3 text-left text-[13px] font-medium text-white/70 transition-all duration-300 hover:border-brand-500/30 hover:bg-brand-500/5 hover:text-white shadow-lg backdrop-blur"
+                    title={prompt}
+                  >
+                    {prompt}
+                  </motion.button>
+                ))}
+              </div>
             </div>
           ) : (
             messages.map((m) => {
               if (m.role === 'user') {
                 return (
-                  <div key={m.id} className="flex justify-end w-full">
-                    <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-white/[0.04] border border-white/5 px-4 py-3 text-[14px] leading-relaxed text-white/90 whitespace-pre-wrap">
+                  <div key={m.id} className="flex justify-end mb-2">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-tr-sm border border-brand-500/20 bg-gradient-to-br from-brand-500/10 to-transparent px-5 py-3.5 text-[14.5px] leading-relaxed text-white shadow-lg backdrop-blur-md"
+                    >
                       {m.text}
-                    </div>
+                    </motion.div>
                   </div>
                 )
               }
 
-              // Assistant Message
               return (
-                <div key={m.id} className="flex justify-start w-full">
-                  <div className="max-w-[90%]">
-                    {/* Loading State matching Nansen AI */}
+                <div key={m.id} className="flex justify-start mb-6 group">
+                  <div className="flex-shrink-0 mr-3 mt-1">
+                    <div className="w-8 h-8 rounded-full border border-brand-500/30 bg-brand-500/10 flex items-center justify-center shadow-[0_0_10px_rgba(27,231,95,0.15)]">
+                      <Sparkles size={14} className="text-brand-500" />
+                    </div>
+                  </div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="min-w-0 flex-1 max-w-[calc(100%-3rem)]"
+                  >
                     {isSending && m.text === '' && m.id === messages[messages.length - 1].id ? (
-                      <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/[0.02] border border-white/5 text-[13px] text-white/60">
-                        <Loader2 size={14} className="animate-spin text-white/40" />
-                        {statusText || 'Analyzing data...'}
+                      <div className="flex items-center gap-3 rounded-2xl border border-brand-500/20 bg-[#060b13]/80 backdrop-blur-md px-5 py-3.5 text-[13px] font-medium text-brand-400 shadow-lg inline-flex">
+                        <ThinkingIndicator />
+                        <span className="ml-1 tracking-wide">{statusText || 'Analyzing...'}</span>
                       </div>
                     ) : (
-                      <div className={`text-[14px] leading-relaxed ${m.error ? 'text-rose-400' : 'text-white/80'}`}>
-                        {m.text}
+                      <div className={m.error ? 'text-rose-400 p-4 rounded-xl border border-rose-500/20 bg-rose-500/10' : 'text-white/90 py-1'}>
+                        {renderAssistantText(m.text)}
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 </div>
               )
             })
           )}
+
+          <AnimatePresence>
+            {isSending && statusText && messages.length > 0 && messages[messages.length - 1].text !== '' ? (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="text-[11px] font-medium uppercase tracking-widest text-brand-500/50 pl-11"
+              >
+                {statusText}
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
         </div>
 
-        {/* Input Area */}
-        <div className="flex-none p-4 pb-6 sm:pb-4 border-t border-white/5 bg-[#020710]">
-          <div className="relative group">
-            <form onSubmit={onSubmit} className="relative flex flex-col bg-[#030914] border border-white/[0.08] focus-within:border-brand-500/40 rounded-2xl shadow-lg transition-all duration-300">
-              <textarea
-                rows={1}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    onSubmit(e);
-                  }
-                }}
-                placeholder="Ask MxCrypto AI"
-                className="w-full max-h-32 min-h-[52px] resize-none bg-transparent text-white placeholder-white/30 px-4 py-4 text-[16px] sm:text-[14px] outline-none"
-              />
-
-              {/* Toolbar */}
-              <div className="flex items-center justify-between px-2 pb-2">
-                <div className="flex items-center gap-1.5">
-                  <button type="button" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-[11px] font-medium text-white/60">
-                    <Zap size={12} className="text-white/40" />
-                    Expert
-                    <span className="text-[9px] opacity-50 ml-0.5">▼</span>
-                  </button>
-                  <button type="button" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-[11px] font-medium text-white/60">
-                    <Upload size={12} className="text-white/40" />
-                    Trade
-                  </button>
-                  <button type="button" className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                    <Settings2 size={14} className="text-white/50" />
-                  </button>
-                  <button type="button" className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                    <Clock size={14} className="text-white/50" />
-                  </button>
-                </div>
-
-                <div className="flex items-center gap-2 pr-1">
-                  <div className="hidden sm:block px-1.5 py-0.5 rounded text-[10px] text-white/30 font-mono">
-                    ⌘ E
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={!canSend}
-                    className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300 ${input.trim()
-                      ? 'bg-brand-500 text-[#020710] shadow-[0_0_16px_rgba(27,231,95,0.4)] hover:bg-brand-400 hover:scale-105'
-                      : 'bg-white/5 text-white/30 border border-white/5'
-                      }`}
-                  >
-                    <ArrowUp size={16} strokeWidth={2.5} />
-                  </button>
-                </div>
-              </div>
-            </form>
-            <div className="mt-3 text-center text-[11px] text-white/30">
-              AI can make mistakes. Consider verifying important information.
-            </div>
-          </div>
+        <div className="flex-none border-t border-white/5 bg-[#020710] p-3 pb-5 sm:pb-3">
+          <form
+            onSubmit={onSubmit}
+            className="relative flex items-end gap-2 rounded-2xl border border-white/[0.08] bg-[#030914] p-2 shadow-lg transition-all duration-300 focus-within:border-brand-500/40"
+          >
+            <textarea
+              rows={1}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  void sendMessage(input)
+                }
+              }}
+              placeholder="Ask MxCrypto AI"
+              className="min-h-[44px] max-h-32 w-full resize-none bg-transparent px-3 py-2.5 text-[15px] text-white outline-none placeholder:text-white/30 sm:text-[14px]"
+            />
+            <button
+              type="submit"
+              disabled={!canSend}
+              className={`mb-1 mr-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-300 ${input.trim()
+                ? 'bg-brand-500 text-[#020710] shadow-[0_0_16px_rgba(27,231,95,0.5)] hover:bg-brand-400 hover:scale-105 active:scale-95'
+                : 'border border-white/5 bg-white/5 text-white/30'
+                }`}
+            >
+              <ArrowUp size={16} strokeWidth={2.5} />
+            </button>
+          </form>
         </div>
       </aside>
     </>
