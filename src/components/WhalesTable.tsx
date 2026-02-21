@@ -93,7 +93,7 @@ export function WhalesTable(props: WhalesTableProps) {
                       onClick={() => props.onWindowChange(option.hours)}
                       className={[
                         'relative rounded-xl px-4 py-2 text-[13px] font-semibold transition-colors duration-300 outline-none',
-                        active ? 'text-white' : 'text-white/40 hover:text-white/80',
+                        active ? 'text-white' : 'text-white/60 hover:text-white/90',
                       ].join(' ')}
                     >
                       {active && (
@@ -121,7 +121,7 @@ export function WhalesTable(props: WhalesTableProps) {
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-2.5">
-              <div className="flex items-center gap-1.5 mr-2 text-[12px] font-bold uppercase tracking-wider text-white/30">
+              <div className="flex items-center gap-1.5 mr-2 text-[12px] font-bold uppercase tracking-wider text-white/50">
                 <Filter size={14} /> Filters
               </div>
               <button
@@ -129,7 +129,7 @@ export function WhalesTable(props: WhalesTableProps) {
                 onClick={() => setSmallCapOnly((v) => !v)}
                 className={[
                   'rounded-full border px-4 py-1.5 text-[12px] font-semibold transition-all duration-300',
-                  smallCapOnly ? 'border-brand-500/40 bg-brand-500/10 text-brand-400 shadow-[0_0_10px_rgba(27,231,95,0.1)]' : 'border-white/10 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/80',
+                  smallCapOnly ? 'border-brand-500/40 bg-brand-500/10 text-brand-400 shadow-[0_0_10px_rgba(27,231,95,0.1)]' : 'border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white',
                 ].join(' ')}
               >
                 Small Caps (1M-50M)
@@ -140,7 +140,7 @@ export function WhalesTable(props: WhalesTableProps) {
                 onClick={() => setExcludeStable((v) => !v)}
                 className={[
                   'rounded-full border px-4 py-1.5 text-[12px] font-semibold transition-all duration-300',
-                  excludeStable ? 'border-brand-500/40 bg-brand-500/10 text-brand-400 shadow-[0_0_10px_rgba(27,231,95,0.1)]' : 'border-white/10 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/80',
+                  excludeStable ? 'border-brand-500/40 bg-brand-500/10 text-brand-400 shadow-[0_0_10px_rgba(27,231,95,0.1)]' : 'border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white',
                 ].join(' ')}
               >
                 No Stables
@@ -151,7 +151,7 @@ export function WhalesTable(props: WhalesTableProps) {
                 onClick={() => setExcludeMajors((v) => !v)}
                 className={[
                   'rounded-full border px-4 py-1.5 text-[12px] font-semibold transition-all duration-300',
-                  excludeMajors ? 'border-brand-500/40 bg-brand-500/10 text-brand-400 shadow-[0_0_10px_rgba(27,231,95,0.1)]' : 'border-white/10 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/80',
+                  excludeMajors ? 'border-brand-500/40 bg-brand-500/10 text-brand-400 shadow-[0_0_10px_rgba(27,231,95,0.1)]' : 'border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white',
                 ].join(' ')}
               >
                 No L1/L2 Majors
@@ -171,7 +171,7 @@ export function WhalesTable(props: WhalesTableProps) {
 
         <div className="overflow-x-auto relative z-10">
           <table className="w-full min-w-[980px] text-left border-collapse">
-            <thead className="bg-[#050912]/90 backdrop-blur-md text-[11px] font-bold uppercase tracking-widest text-white/40 sticky top-0 border-b border-white/5">
+            <thead className="bg-[#050912]/90 backdrop-blur-md text-[11px] font-bold uppercase tracking-widest text-white/60 sticky top-0 border-b border-white/5">
               <tr>
                 <th className="px-6 py-4">Chain</th>
                 <th className="px-6 py-4">Token</th>
@@ -206,7 +206,7 @@ export function WhalesTable(props: WhalesTableProps) {
                           )}
                           <div className="min-w-0">
                             <div className="truncate text-[14px] font-bold text-white tracking-tight">{row.symbol}</div>
-                            <div className="truncate text-[12px] font-medium text-white/40">{row.name}</div>
+                            <div className="truncate text-[12px] font-medium text-white/60">{row.name}</div>
                           </div>
                         </div>
                       </td>

@@ -535,7 +535,7 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery, 
         <div className="flex-none border-t border-white/5 bg-[#020710] p-3 pb-5 sm:pb-3">
           <form
             onSubmit={onSubmit}
-            className="relative flex items-end gap-2 rounded-2xl border border-white/[0.08] bg-[#030914] p-2 shadow-lg transition-all duration-300 focus-within:border-brand-500/40"
+            className="relative flex items-end gap-2 rounded-md border border-white/20 bg-[#060b13] p-2 shadow-2xl transition-all duration-300 focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500/50"
           >
             <textarea
               rows={1}
@@ -553,12 +553,12 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery, 
             <button
               type="submit"
               disabled={!canSend}
-              className={`mb-1 mr-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-300 ${input.trim()
-                ? 'bg-brand-500 text-[#020710] shadow-[0_0_16px_rgba(27,231,95,0.5)] hover:bg-brand-400 hover:scale-105 active:scale-95'
-                : 'border border-white/5 bg-white/5 text-white/30'
+              className={`mb-1 mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded transition-all duration-300 ${input.trim()
+                ? 'bg-brand-500 text-[#020710] shadow-[0_0_15px_rgba(27,231,95,0.6)] hover:bg-brand-400 active:scale-95'
+                : 'bg-white/10 text-white/40'
                 }`}
             >
-              <ArrowUp size={16} strokeWidth={2.5} />
+              <ArrowUp size={18} strokeWidth={3} />
             </button>
           </form>
         </div>

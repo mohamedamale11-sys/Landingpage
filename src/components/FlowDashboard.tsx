@@ -71,7 +71,7 @@ function ChartCard(props: { title: string; tone: 'buy' | 'sell'; items: FlowList
       </div>
 
       {props.items.length === 0 ? (
-        <div className="flex h-[280px] items-center justify-center rounded-2xl border border-dashed border-white/10 text-sm text-white/40">
+        <div className="flex h-[280px] items-center justify-center rounded-2xl border border-dashed border-white/10 text-sm text-white/60">
           No data in this window.
         </div>
       ) : (
@@ -83,7 +83,7 @@ function ChartCard(props: { title: string; tone: 'buy' | 'sell'; items: FlowList
                 className="absolute right-2"
                 style={{ bottom: `${tick * CHART_HEIGHT}px`, transform: 'translateY(50%)' }}
               >
-                <span className="text-[10px] font-medium text-white/30">{formatSOL(maxValue * tick)}</span>
+                <span className="text-[10px] font-medium text-white/50">{formatSOL(maxValue * tick)}</span>
               </div>
             ))}
           </div>
@@ -128,7 +128,7 @@ function ChartCard(props: { title: string; tone: 'buy' | 'sell'; items: FlowList
             <div className="flex gap-2 px-1">
               {props.items.map((item) => (
                 <div key={`label-${item.title}-${item.subtitle}`} className="flex min-w-0 flex-1 justify-center overflow-hidden">
-                  <span className="truncate text-[11px] font-medium text-white/50">{item.title}</span>
+                  <span className="truncate text-[11px] font-medium text-white/70">{item.title}</span>
                 </div>
               ))}
             </div>
@@ -149,7 +149,7 @@ function MetricCard(props: { label: string; value: string; icon: ComponentType<{
     >
       <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       <div className="flex items-center justify-between mb-4 relative z-10">
-        <span className="text-[12px] font-bold uppercase tracking-widest text-white/35 group-hover:text-white/50 transition-colors">{props.label}</span>
+        <span className="text-[12px] font-bold uppercase tracking-widest text-white/50 group-hover:text-white/70 transition-colors">{props.label}</span>
         <div className="p-2 rounded-xl bg-white/5 text-white/40 group-hover:text-white/80 group-hover:bg-brand-500/20 group-hover:text-brand-400 transition-colors">
           <Icon size={16} />
         </div>
@@ -169,7 +169,7 @@ export function FlowDashboard(props: FlowDashboardProps) {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 className="text-[28px] font-bold tracking-tight text-white">Top Tokens</h2>
-          <p className="mt-1 text-[14px] text-white/55">
+          <p className="mt-1 text-[14px] font-medium text-white/70">
             Real smart money inflow and outflow from backend data.
           </p>
         </div>
@@ -187,7 +187,7 @@ export function FlowDashboard(props: FlowDashboardProps) {
                     'relative rounded-xl px-4 py-2 text-[13px] font-semibold transition-colors duration-300 outline-none',
                     active
                       ? 'text-white'
-                      : 'text-white/50 hover:text-white/80',
+                      : 'text-white/60 hover:text-white/90',
                   ].join(' ')}
                 >
                   {active && (

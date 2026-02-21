@@ -54,18 +54,18 @@ function SideNav(props: {
                 type="button"
                 onClick={() => props.onTabChange(item.key)}
                 className={[
-                  'group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-300 outline-none',
-                  active ? 'text-white' : 'text-white/50 hover:bg-white/[0.03] hover:text-white/90',
+                  'group relative flex w-full items-center gap-3 rounded-lg px-3 py-3 text-[14px] transition-all duration-300 outline-none',
+                  active ? 'font-bold text-white' : 'font-medium text-white/50 hover:bg-white/[0.03] hover:text-white/90',
                 ].join(' ')}
               >
                 {active && (
                   <motion.div
                     layoutId="active-nav"
-                    className="absolute inset-0 rounded-lg bg-brand-500/10 border border-brand-500/20 shadow-[0_0_15px_rgba(27,231,95,0.05)]"
+                    className="absolute inset-0 rounded-lg bg-gradient-to-r from-brand-500/20 to-brand-500/5 border border-brand-500/30 shadow-[0_0_20px_rgba(27,231,95,0.15)]"
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                   />
                 )}
-                <item.icon size={16} className={`relative z-10 transition-colors duration-300 ${active ? 'text-brand-500 drop-shadow-[0_0_8px_rgba(27,231,95,0.5)]' : 'text-white/40 group-hover:text-white/70'}`} />
+                <item.icon size={18} className={`relative z-10 transition-colors duration-300 ${active ? 'text-brand-500 drop-shadow-[0_0_8px_rgba(27,231,95,0.5)]' : 'text-white/40 group-hover:text-white/70'}`} />
                 <span className="relative z-10">{item.label}</span>
               </button>
             )
@@ -100,8 +100,8 @@ function MobileBottomBar(props: {
   onAskAI: () => void
 }) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/5 bg-[#020710]/95 px-2 py-3 pb-6 backdrop-blur-md lg:hidden">
-      <div className="mx-auto flex max-w-md items-center justify-around">
+    <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-[#020710]/90 px-2 py-3 pb-6 backdrop-blur-xl lg:hidden shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+      <div className="mx-auto flex max-w-md items-center justify-around relative">
         <button type="button" onClick={() => props.onTabChange('home')} className={`flex flex-col items-center gap-1 p-2 ${props.activeTab === 'home' ? 'text-brand-500' : 'text-white/55'}`}>
           <Home size={20} />
           <span className="text-[10px] font-medium">Home</span>
@@ -114,9 +114,9 @@ function MobileBottomBar(props: {
           <Activity size={20} />
           <span className="text-[10px] font-medium">Whales</span>
         </button>
-        <button type="button" onClick={props.onAskAI} className="flex flex-col items-center gap-1 p-2 text-brand-500">
-          <Sparkles size={20} />
-          <span className="text-[10px] font-semibold">Ask AI</span>
+        <button type="button" onClick={props.onAskAI} className="flex flex-col items-center gap-1 p-2 text-[#020710] bg-brand-500 rounded-xl shadow-[0_4px_15px_rgba(27,231,95,0.4)] px-4 transition-transform active:scale-95">
+          <Sparkles size={18} />
+          <span className="text-[10px] font-bold tracking-wide">Ask AI</span>
         </button>
       </div>
     </div>
@@ -204,13 +204,13 @@ function HomePanel(props: { searchQuery: string; setSearchQuery: (v: string) => 
             </div>
             <h3 className="text-lg font-semibold text-white">Live Money Flow</h3>
           </div>
-          <p className="text-[14px] text-white/50 mb-8 leading-relaxed relative z-10">View real-time capital rotation across Solana ecosystems. Identify where the smart money is moving before it hits the mainstream.</p>
+          <p className="text-[14px] text-white/50 mb-8 leading-relaxed relative z-10">Monitor overall capital rotating in and out of the ecosystem, and pinpoint tokens accumulating institutional volume.</p>
           <div className="flex items-end justify-between relative z-10">
             <div className="flex -space-x-3">
-              <div className="w-9 h-9 rounded-full border-2 border-[#0c1322] bg-[#2dd4bf] flex items-center justify-center text-[9px] font-bold text-[#052e16] shadow-lg">BUY</div>
-              <div className="w-9 h-9 rounded-full border-2 border-[#0c1322] bg-[#f87171] z-10 flex items-center justify-center text-[9px] font-bold text-[#450a0a] shadow-lg">SELL</div>
+              <div className="w-9 h-9 rounded-full border-2 border-[#0c1322] bg-[#2dd4bf] flex items-center justify-center text-[9px] font-bold text-[#052e16] shadow-lg">IN</div>
+              <div className="w-9 h-9 rounded-full border-2 border-[#0c1322] bg-[#f87171] z-10 flex items-center justify-center text-[9px] font-bold text-[#450a0a] shadow-lg">OUT</div>
             </div>
-            <div className="text-[13px] font-semibold text-brand-500 group-hover:text-brand-400 transition-colors flex items-center gap-1">Explore Flows <ArrowUp size={14} className="rotate-45" /></div>
+            <div className="text-[13px] font-bold text-[#020710] bg-brand-500 px-4 py-2 rounded-lg group-hover:bg-brand-400 group-hover:shadow-[0_0_15px_rgba(27,231,95,0.4)] transition-all flex items-center gap-1.5 uppercase tracking-wide">View Dashboard <ArrowUp size={14} className="rotate-45" /></div>
           </div>
         </div>
 
@@ -225,10 +225,10 @@ function HomePanel(props: { searchQuery: string; setSearchQuery: (v: string) => 
             </div>
             <h3 className="text-lg font-semibold text-white">Whale Activity</h3>
           </div>
-          <p className="text-[14px] text-white/50 mb-8 leading-relaxed relative z-10">Follow highest-performing PnL wallets. See their exact SPL token entries and exits as they happen on-chain.</p>
+          <p className="text-[14px] text-white/50 mb-8 leading-relaxed relative z-10">Filter and analyze wallets with the highest PnL. See what smart money is buying across the market.</p>
           <div className="flex items-end justify-between relative z-10">
             <div className="text-[32px] font-extrabold text-white tracking-tighter leading-none">48+<span className="text-[13px] text-white/30 font-medium tracking-normal ml-2 relative -top-1">whales tracked</span></div>
-            <div className="text-[13px] font-semibold text-blue-400 group-hover:text-blue-300 transition-colors flex items-center gap-1">View Wallets <ArrowUp size={14} className="rotate-45" /></div>
+            <div className="text-[13px] font-bold text-[#020710] bg-blue-500 px-4 py-2 rounded-lg group-hover:bg-blue-400 group-hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all flex items-center gap-1.5 uppercase tracking-wide">View Entities <ArrowUp size={14} className="rotate-45" /></div>
           </div>
         </div>
       </motion.div>
