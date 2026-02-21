@@ -232,11 +232,14 @@ export function SmartChat({ isOpen, onClose, initialQuery, onClearInitialQuery }
         {/* Header */}
         <header className="flex-none h-16 px-5 border-b border-white/5 flex items-center justify-between bg-[#030914]/80 backdrop-blur-md">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-brand-500/10 border border-brand-500/20">
-              <span className="text-brand-500 font-bold text-[16px] tracking-tight drop-shadow-[0_0_8px_rgba(27,231,95,0.4)]">Mx</span>
+            <div className="flex items-center font-bold text-[18px] tracking-tight">
+              <span className="text-brand-500">Mx</span>
+              <span className="text-white">Crypto</span>
+              <span className="bg-brand-500 text-white text-[11px] px-1.5 py-0.5 rounded-md ml-1.5 flex items-center justify-center">
+                AI
+              </span>
             </div>
-            <span className="font-semibold text-white/90 text-[15px]">MxCrypto AI</span>
-            <span className="px-1.5 py-0.5 rounded border border-brand-500/30 bg-brand-500/10 text-[9px] font-bold text-brand-500 uppercase tracking-widest">
+            <span className="px-1.5 py-0.5 rounded border border-brand-500/30 bg-brand-500/10 text-[9px] font-bold text-brand-500 uppercase tracking-widest ml-1">
               Beta
             </span>
           </div>

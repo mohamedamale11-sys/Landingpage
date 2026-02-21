@@ -5,7 +5,6 @@ import {
   Coins,
   Search,
   Link,
-  Signal,
   Smartphone,
   Star,
   Activity,
@@ -24,7 +23,8 @@ import {
   PanelLeftClose,
   MoreHorizontal,
   Sparkles,
-  PieChart
+  PieChart,
+  BarChart3
 } from 'lucide-react';
 
 // Using a placeholder SmartChat for the MVP integration
@@ -32,19 +32,19 @@ import { SmartChat } from './components/SmartChat';
 
 const SIDEBAR_TOP = [
   { label: 'Home', icon: Home, active: true },
-  { label: 'Smart Money', icon: Activity },
-  { label: 'Tokens', icon: Coins },
+  { label: 'Mx Whales', icon: Activity },
+  { label: 'Token X-Ray', icon: Coins },
+  { label: 'Ecosystems', icon: Link },
 ];
 
 const PROFILER_SUB = [
-  { label: 'Wallet Profiler' },
-  { label: 'Token Profiler' },
-  { label: 'Deep Research' },
+  { label: 'Wallet Analyzer' },
+  { label: 'Smart Contract Audit' },
+  { label: 'Deep Dive' },
 ];
 
 const SIDEBAR_MID = [
-  { label: 'Chains', icon: Link },
-  { label: 'AI Signals', icon: Signal },
+  { label: 'Mx AI Signals', icon: BarChart3 },
   { label: 'Get Mobile App', icon: Smartphone },
 ];
 
@@ -80,12 +80,14 @@ function SideNav() {
   return (
     <aside className="hidden w-[260px] flex-col border-r border-white/5 bg-[#030914] text-sm lg:flex h-screen sticky top-0 overflow-y-auto mx-scroll pb-6">
       <div className="flex flex-col px-4 py-5 gap-4">
-        <div className="flex items-center gap-2 px-2 text-white/90 hover:text-white cursor-pointer transition-colors mt-2 group">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-brand-500/10 border border-brand-500/20 group-hover:border-brand-500/40 transition-colors">
-            <span className="text-brand-500 font-bold text-[18px] tracking-tighter drop-shadow-[0_0_8px_rgba(27,231,95,0.4)]">Mx</span>
+        <div className="flex items-center gap-1 px-2 hover:opacity-80 cursor-pointer transition-opacity mt-2 mb-2">
+          <div className="flex items-center tracking-[-0.04em] font-sans">
+            <span className="text-brand-500 font-extrabold text-[26px] drop-shadow-[0_0_15px_rgba(27,231,95,0.5)]">Mx</span>
+            <span className="text-white font-semibold text-[26px]">Crypto</span>
+            <span className="bg-brand-500 text-[#020710] font-bold text-[12px] px-2 py-0.5 rounded ml-1.5 flex items-center justify-center translate-y-[-2px] shadow-[0_0_10px_rgba(27,231,95,0.4)]">
+              AI
+            </span>
           </div>
-          <span className="font-semibold text-[17px] tracking-wide ml-1">MxCrypto AI</span>
-          <ChevronDown size={14} className="text-white/40 ml-1" />
         </div>
         <div className="px-2 text-[13px] flex items-center gap-1.5">
           <span className="text-white/40">$0</span>
@@ -233,9 +235,11 @@ function App() {
   };
 
   const SUGGESTIONS = [
-    'What sectors dominate Smart Money holding...',
-    'Identify tokens with increasing whale accumu...',
-    'Why is SPX...'
+    'Analyze whale accumulation on Layer 2 networks in the last 24h',
+    'Identify emerging DeFi protocols with high Smart Money inflows',
+    'Why is SPX outperforming Bitcoin today?',
+    'What are the top 5 trending tokens on Solana?',
+    'Show me the latest news on Ethereum'
   ];
 
   return (
@@ -318,10 +322,12 @@ function App() {
           </div>
         </header>
 
-        {/* Main Content Area */}
-        <div className="flex-1 relative overflow-hidden flex flex-col items-center justify-center -mt-20">
-          {/* Subtle Background Glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-brand-500/10 rounded-full blur-[120px] pointer-events-none" />
+        {/* Immersive Deep Black AI Background Area */}
+        <div className="flex-1 flex flex-col items-center justify-center relative overflow-hidden bg-[#010408]">
+          {/* Intense Glowing Orbs */}
+          <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-brand-500/10 rounded-full blur-[120px] pointer-events-none transform -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-1/4 right-1/4 w-[800px] h-[800px] bg-[#020710] rounded-full blur-[100px] pointer-events-none transform translate-x-1/2 translate-y-1/2" />
+          <div className="absolute top-1/2 left-1/2 w-[400px] h-[400px] bg-brand-500/5 rounded-full blur-[150px] pointer-events-none transform -translate-x-1/2 -translate-y-1/2" />
 
           <div className="w-full max-w-[800px] px-6 relative z-10 flex flex-col items-center">
             {/* Beta Badge */}
@@ -329,16 +335,14 @@ function App() {
               BETA
             </div>
 
-            {/* Main Header */}
-            <h1 className="text-[32px] sm:text-[40px] md:text-[44px] font-semibold text-white tracking-tight mb-10 text-center">
-              What Did Smart Money Trade Today?
+            {/* Main Title */}
+            <h1 className="text-[32px] sm:text-[44px] font-bold text-white mb-10 tracking-tight text-center max-w-2xl px-4 drop-shadow-md">
+              What is the <span className="text-brand-500">Smart Money</span> plotting?
             </h1>
 
-            {/* Search Input Box */}
-            <div className="w-full relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-500/20 via-brand-500/10 to-transparent rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500" />
-              <div className="relative flex flex-col bg-[#030914]/80 backdrop-blur-xl border border-brand-500/30 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden transition-all duration-300 focus-within:border-brand-500/60 focus-within:bg-[#030914]">
-
+            {/* Search Box Container */}
+            <div className="w-full max-w-[700px] px-4 z-10">
+              <div className="relative bg-[#030914]/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] focus-within:border-brand-500/50 focus-within:shadow-[0_8px_40px_rgba(27,231,95,0.15)] transition-all duration-500 group">
                 <input
                   type="text"
                   value={searchQuery}
@@ -347,7 +351,7 @@ function App() {
                     if (e.key === 'Enter') handleSearch(searchQuery);
                   }}
                   placeholder="Ask MxCrypto AI"
-                  className="w-full bg-transparent text-white placeholder-white/30 px-5 pt-5 pb-4 text-[16px] sm:text-[15px] outline-none"
+                  className="w-full bg-transparent text-white placeholder-white/30 px-6 pt-6 pb-5 text-[16px] outline-none font-medium"
                 />
 
                 {/* Input Toolbar */}
