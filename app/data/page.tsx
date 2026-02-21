@@ -188,12 +188,6 @@ export default async function DataPage() {
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Link
-            href="/chat"
-            className="mx-mono rounded-full border border-[rgb(var(--accent)/0.4)] bg-[rgb(var(--accent)/0.14)] px-4 py-2 text-[12px] font-semibold text-[rgb(var(--accent))] hover:bg-[rgb(var(--accent)/0.2)]"
-          >
-            MxCrypto AI Chat
-          </Link>
-          <Link
             href="/qiimaha-bitcoin-maanta"
             className="mx-mono rounded-full border mx-hairline bg-white/[0.02] px-4 py-2 text-[12px] font-semibold text-white/75 hover:bg-white/[0.06] hover:text-white"
           >

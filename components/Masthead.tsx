@@ -42,7 +42,6 @@ export function Masthead() {
   const router = useRouter();
 
   const onData = pathname.startsWith("/data");
-  const onChat = pathname.startsWith("/chat");
   const onBaro = pathname === "/baro";
   const onBitcoin =
     pathname === "/wararka-bitcoin" ||
@@ -50,7 +49,7 @@ export function Masthead() {
     pathname === "/qiimaha-bitcoin-maanta";
   const onCrypto = pathname === "/crypto-somali";
   const onMeme = pathname === "/memecoin-somali";
-  const onNews = !onData && !onChat && !onBaro && !onBitcoin && !onCrypto && !onMeme;
+  const onNews = !onData && !onBaro && !onBitcoin && !onCrypto && !onMeme;
 
   const q = sp.get("q") || "";
 
@@ -94,16 +93,6 @@ export function Masthead() {
               ].join(" ")}
             >
               Xog
-            </Link>
-
-            <Link
-              href="/chat"
-              className={[
-                "mx-mono text-[12px] font-semibold tracking-widest transition",
-                onChat ? "text-white" : "text-white/55 hover:text-white/85",
-              ].join(" ")}
-            >
-              AI
             </Link>
 
             <Link
@@ -193,17 +182,6 @@ export function Masthead() {
                 ].join(" ")}
               >
                 Xog
-              </Link>
-              <Link
-                href="/chat"
-                className={[
-                  "shrink-0 border-b-2 pb-2 transition",
-                  onChat
-                    ? "border-white/70 text-white"
-                    : "border-transparent text-white/55 hover:text-white/85",
-                ].join(" ")}
-              >
-                AI
               </Link>
               <Link
                 href="/crypto-somali"
